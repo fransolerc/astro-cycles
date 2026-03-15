@@ -602,16 +602,16 @@
     ctx.strokeRect(ML, sTop, iw, SCORE_H);
   }
 
+  // ─── EXTREMES & TABLE ───
+
   function findExtremes(scores, n = 8, minGapDays = 45) {
     if (scores.length < 3) return { peaks: [], valleys: [] };
     const rawPeaks = [], rawValleys = [];
-
     for (let i = 1; i < scores.length - 1; i++) {
       const p = scores[i - 1].v, c = scores[i].v, nx = scores[i + 1].v;
       if (c > p && c > nx) rawPeaks.push({ jd: scores[i].jd, v: c });
       else if (c < p && c < nx) rawValleys.push({ jd: scores[i].jd, v: c });
     }
-
     const filterByGap = arr => {
       const out = [];
       arr.forEach(pt => {
@@ -619,47 +619,178 @@
       });
       return out.slice(0, n);
     };
-
     rawPeaks.sort((a, b) => b.v - a.v);
     rawValleys.sort((a, b) => a.v - b.v);
     return { peaks: filterByGap(rawPeaks), valleys: filterByGap(rawValleys) };
+  }
+
+  function getAspectsAtJD(jd) {
+    const T = (jd - J2000) / 36525;
+    const orb = Number.parseFloat(document.getElementById('orb-sl').value);
+    const asps = ASPECTS.filter(a => aspEn[a.angle]);
+    const result = [];
+    pairData.filter(p => p.vis).forEach(pd => {
+      const l1 = getLon(pd.p1, T);
+      const l2 = pd.type === 'tn' ? pd.natalLon : getLon(pd.p2, T);
+      const s = sep180(l1, l2);
+      const hit = asps.reduce((best, a) => {
+        const dev = Math.abs(s - a.angle);
+        if (dev <= orb && (!best || dev < best.dev)) return { ...a, dev, s };
+        return best;
+      }, null);
+      result.push({ pd, hit });
+    });
+    return result;
   }
 
   function renderExtremes() {
     const bar = document.getElementById('ext-bar');
     if (!bar) return;
     if (!cachedRaw || !cachedRaw.length) { bar.innerHTML = ''; return; }
-
     const smDays = Number.parseInt(document.getElementById('sm-sl').value, 10);
     const scores = smoothArr(cachedRaw, smDays);
     const { peaks, valleys } = findExtremes(scores);
-
     if (!peaks.length && !valleys.length) { bar.innerHTML = ''; return; }
 
     const makeChip = (pt, idx, isPos) => {
       const cls = isPos ? 'ext-chip-pos' : 'ext-chip-neg';
       const valCls = isPos ? 'ext-val-pos' : 'ext-val-neg';
       const sign = isPos ? '+' : '';
-      return `<div class="ext-chip ${cls}">` +
-        `<span class="ext-rank">${idx + 1}</span>` +
+      const chip = document.createElement('div');
+      chip.className = `ext-chip ${cls}`;
+      chip.dataset.jd = pt.jd;
+      chip.innerHTML = `<span class="ext-rank">${idx + 1}</span>` +
         `<span class="ext-date">${fmtD(pt.jd)}</span>` +
-        `<span class="${valCls}">${sign}${pt.v.toFixed(2)}</span>` +
-        `</div>`;
+        `<span class="${valCls}">${sign}${pt.v.toFixed(2)}</span>`;
+      chip.addEventListener('click', () => showTableAtJD(pt.jd, peaks, valleys));
+      return chip;
     };
 
-    let html = `<div class="ext-section">` +
-      `<span class="ext-title ext-title-pos">▲ MÁXIMOS</span>` +
-      peaks.map((p, i) => makeChip(p, i, true)).join('') +
-      `</div>`;
+    bar.innerHTML = '';
+    const posSection = document.createElement('div');
+    posSection.className = 'ext-section';
+    posSection.innerHTML = '<span class="ext-title ext-title-pos">▲ MÁX</span>';
+    peaks.forEach((p, i) => posSection.appendChild(makeChip(p, i, true)));
+    bar.appendChild(posSection);
 
-    html += `<span class="ext-sep">|</span>`;
+    const sep = document.createElement('span');
+    sep.className = 'ext-sep'; sep.textContent = '|';
+    bar.appendChild(sep);
 
-    html += `<div class="ext-section">` +
-      `<span class="ext-title ext-title-neg">▼ MÍNIMOS</span>` +
-      valleys.map((v, i) => makeChip(v, i, false)).join('') +
-      `</div>`;
+    const negSection = document.createElement('div');
+    negSection.className = 'ext-section';
+    negSection.innerHTML = '<span class="ext-title ext-title-neg">▼ MÍN</span>';
+    valleys.forEach((v, i) => negSection.appendChild(makeChip(v, i, false)));
+    bar.appendChild(negSection);
 
-    bar.innerHTML = html;
+    const btnTbl = document.createElement('button');
+    btnTbl.className = 'ext-show-tbl';
+    btnTbl.textContent = '≡ TABLA';
+    btnTbl.addEventListener('click', () => showFullTable(peaks, valleys));
+    bar.appendChild(btnTbl);
+  }
+
+  function showTableAtJD(jd, peaks, valleys) {
+    // Highlight clicked chip
+    document.querySelectorAll('.ext-chip').forEach(c => c.classList.remove('active-chip'));
+    const active = document.querySelector(`.ext-chip[data-jd="${jd}"]`);
+    if (active) active.classList.add('active-chip');
+    showFullTable(peaks, valleys, jd);
+  }
+
+  function buildTableRows(peaks, valleys) {
+    // Merge and sort by date
+    const all = [
+      ...peaks.map(p => ({ ...p, type: 'MAX' })),
+      ...valleys.map(v => ({ ...v, type: 'MIN' }))
+    ].sort((a, b) => a.jd - b.jd);
+    return all;
+  }
+
+  function showFullTable(peaks, valleys, highlightJD = null) {
+    const panel = document.getElementById('table-panel');
+    const scroll = document.getElementById('table-scroll');
+    panel.style.display = 'flex';
+
+    if (!pairData.length) { scroll.innerHTML = '<div style="padding:8px;color:#2a3a4a">Sin datos calculados.</div>'; return; }
+
+    const rows = buildTableRows(peaks, valleys);
+    const visiblePairs = pairData.filter(p => p.vis);
+
+    // Header
+    let html = '<table class="ext-table"><thead><tr>' +
+      '<th>#</th><th>TIPO</th><th>FECHA</th><th>ÍNDICE</th>';
+    visiblePairs.forEach(pd => {
+      const lbl = pd.type === 'tn'
+        ? `${SYM[pd.p1]}→${SYM[pd.p2]}N`
+        : `${SYM[pd.p1]}${SYM[pd.p2]}`;
+      html += `<th style="color:${pd.col}">${lbl}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    rows.forEach((row, idx) => {
+      const isPos = row.type === 'MAX';
+      const highlight = highlightJD && Math.abs(row.jd - highlightJD) < 1;
+      const rowStyle = highlight ? ' style="background:#0e1a0e"' : '';
+      const typeClass = isPos ? 'td-type-pos' : 'td-type-neg';
+      const valClass = isPos ? 'td-val-pos' : 'td-val-neg';
+      const sign = isPos ? '+' : '';
+
+      html += `<tr${rowStyle}>` +
+        `<td class="td-rank">${idx + 1}</td>` +
+        `<td class="${typeClass}">${isPos ? '▲' : '▼'}</td>` +
+        `<td class="td-date">${fmtD(row.jd)}</td>` +
+        `<td class="${valClass}">${sign}${row.v.toFixed(2)}</td>`;
+
+      const aspects = getAspectsAtJD(row.jd);
+      aspects.forEach(({ pd, hit }) => {
+        if (hit) {
+          const prox = ((1 - hit.dev / Number.parseFloat(document.getElementById('orb-sl').value)) * 100).toFixed(0);
+          html += `<td class="td-asp">` +
+            `<span class="td-asp-hit" style="color:${hit.col}">${hit.sym} ${hit.angle}°</span>` +
+            `<span class="td-asp-dev">${hit.dev.toFixed(1)}° Δ · ${prox}%</span>` +
+            `</td>`;
+        } else {
+          html += `<td class="td-asp td-asp-none">·</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    scroll.innerHTML = html;
+
+    if (highlight) {
+      const highlighted = scroll.querySelector('tr[style]');
+      if (highlighted) highlighted.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function exportCSV(peaks, valleys) {
+    if (!pairData.length) return;
+    const rows = buildTableRows(peaks, valleys);
+    const visiblePairs = pairData.filter(p => p.vis);
+    const orb = Number.parseFloat(document.getElementById('orb-sl').value);
+
+    const headers = ['#', 'TIPO', 'FECHA', 'INDICE', ...visiblePairs.map(pd =>
+      pd.type === 'tn' ? `${pd.p1}→${pd.p2}N` : `${pd.p1}-${pd.p2}`
+    )];
+
+    const lines = [headers.join(',')];
+    rows.forEach((row, idx) => {
+      const sign = row.type === 'MAX' ? '+' : '';
+      const aspects = getAspectsAtJD(row.jd);
+      const aspCols = aspects.map(({ hit }) =>
+        hit ? `${hit.name} ${hit.angle}° (${hit.dev.toFixed(1)}°Δ)` : ''
+      );
+      lines.push([idx + 1, row.type, fmtD(row.jd), `${sign}${row.v.toFixed(2)}`, ...aspCols].map(v => `"${v}"`).join(','));
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'extremos_astro.csv'; a.click();
+    URL.revokeObjectURL(url);
   }
 
   function drawChart() {
@@ -833,7 +964,19 @@
   document.getElementById('sm-sl').addEventListener('input', function() {
     document.getElementById('sm-v').textContent = this.value + 'd';
     drawChart();
-    renderExtremes();
+  });
+
+  document.getElementById('btn-close-tbl').addEventListener('click', () => {
+    document.getElementById('table-panel').style.display = 'none';
+    document.querySelectorAll('.ext-chip').forEach(c => c.classList.remove('active-chip'));
+  });
+
+  document.getElementById('btn-csv').addEventListener('click', () => {
+    if (!cachedRaw || !cachedRaw.length) return;
+    const smDays = Number.parseInt(document.getElementById('sm-sl').value, 10);
+    const scores = smoothArr(cachedRaw, smDays);
+    const { peaks, valleys } = findExtremes(scores);
+    exportCSV(peaks, valleys);
   });
 
   renderAspBar();
