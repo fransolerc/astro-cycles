@@ -40,9 +40,9 @@ canvas{display:block}
 
 <!-- RANGE BAR -->
 <div class="bar">
-  <label>DE</label><input type="date" id="sd" value="2015-01-01">
-  <label>A</label><input type="date" id="ed" value="2026-12-31">
-  <label style="margin-left:4px">MODO</label>
+  <label for="sd">DE</label><input type="date" id="sd" value="2015-01-01">
+  <label for="ed">A</label><input type="date" id="ed" value="2026-12-31">
+  <label for="mode-sel" style="margin-left:4px">MODO</label>
   <select id="mode-sel" onchange="runCalc()">
     <option value="180" selected>0–180°</option>
     <option value="360">0–360°</option>
@@ -52,41 +52,44 @@ canvas{display:block}
 
 <!-- PAIR ADD BAR -->
 <div class="bar" style="background:#0c0c14;border-bottom-color:#1a1a28">
-  <label style="color:#2a5a2a">T–T</label>
-  <label>P1</label><select id="np1"></select>
-  <label>P2</label><select id="np2"></select>
+  <span style="color:#2a5a2a">T–T</span>
+  <label for="np1">P1</label><select id="np1"></select>
+  <label for="np2">P2</label><select id="np2"></select>
   <button class="btn2" onclick="addPairTT()">+ TRÁNSITO–TRÁNSITO</button>
   <span style="color:#1e1e2e;margin:0 4px">|</span>
-  <label style="color:#5a2a7a">T–N</label>
-  <label>TRÁNSITO</label><select id="tp1"></select>
-  <label>NATAL</label><select id="tp2"></select>
+  <span style="color:#5a2a7a">T–N</span>
+  <label for="tp1">TRÁNSITO</label><select id="tp1"></select>
+  <label for="tp2">NATAL</label><select id="tp2"></select>
   <button class="btn2" onclick="addPairTN()" style="border-color:#3a2a5a;color:#a070d0">+ TRÁNSITO–NATAL</button>
 </div>
 
 <!-- NATAL DATA BAR -->
 <div class="natal-bar">
-  <label>⬟ NATAL:</label>
-  <label>FECHA</label><input type="date" id="nb-date" value="1980-06-15">
-  <label>HORA</label><input type="time" id="nb-time" value="12:00">
-  <label>LAT</label><input type="number" id="nb-lat" value="40.42" step="0.01" min="-90" max="90">
-  <label>LON</label><input type="number" id="nb-lon" value="-3.70" step="0.01" min="-180" max="180">
+  <span>⬟ NATAL:</span>
+  <label for="nb-date">FECHA</label><input type="date" id="nb-date" value="1980-06-15">
+  <label for="nb-time">HORA</label><input type="time" id="nb-time" value="12:00">
+  <label for="nb-lat">LAT</label><input type="number" id="nb-lat" value="40.42" step="0.01" min="-90" max="90">
+  <label for="nb-lon">LON</label><input type="number" id="nb-lon" value="-3.70" step="0.01" min="-180" max="180">
   <button class="btn2" onclick="calcNatal()" style="border-color:#3a2a5a;color:#a070d0">CALCULAR NATAL</button>
   <div class="natal-tag" id="natal-tag">Sin datos natales calculados</div>
 </div>
 
 <div class="pairs-bar" id="pairs-bar"></div>
-<div class="canvas-wrap" id="cwrap"><canvas id="cv"></canvas><div id="tt"></div></div>
+<div class="canvas-wrap" id="cwrap">
+  <canvas id="cv" aria-label="Gráfico de ciclos planetarios"></canvas>
+  <div id="tt"></div>
+</div>
 <div class="asp-bar" id="asp-bar"></div>
 <div class="bot">
-  <label>ORB</label>
+  <label for="orb-sl">ORB</label>
   <input type="range" id="orb-sl" min="1" max="12" value="7" step=".5" oninput="document.getElementById('orb-v').textContent=this.value+'°';invalidateScore();drawChart()">
   <span class="bv" id="orb-v">7°</span>
-  <label>SUAVIZ</label>
+  <label for="sm-sl">SUAVIZ</label>
   <input type="range" id="sm-sl" min="1" max="60" value="10" step="1" oninput="document.getElementById('sm-v').textContent=this.value+'d';drawChart()">
   <span class="bv" id="sm-v">10d</span>
-  <span style="color:#1e3a1e;font-size:8px;margin-left:4px">POS</span><span style="color:#34d399;font-size:8px">Trígono+Sextil</span>
-  <span style="color:#3a1e1e;font-size:8px;margin-left:4px">NEG</span><span style="color:#f87171;font-size:8px">Cuad+Opo</span>
-  <span style="color:#3a3a1e;font-size:8px;margin-left:4px">NEU</span><span style="color:#fcd34d;font-size:8px">Conjunción</span>
+  <span style="color:#1e3a1e;font-size:10px;margin-left:6px">POS</span><span style="color:#34d399;font-size:10px">Trígono+Sextil</span>
+  <span style="color:#3a1e1e;font-size:10px;margin-left:6px">NEG</span><span style="color:#f87171;font-size:10px">Cuad+Opo</span>
+  <span style="color:#3a3a1e;font-size:10px;margin-left:6px">NEU</span><span style="color:#fcd34d;font-size:10px">Conjunción</span>
 </div>
 <div class="stat" id="stat">LISTO · VSOP87/MEEUS · TRÁNSITOS + NATAL</div>
 
@@ -160,7 +163,7 @@ function stepFor(p1){
 function addPairTT(){
   const a=document.getElementById('np1').value,b=document.getElementById('np2').value;
   if(a===b){alert('Planetas diferentes');return;}
-  if(pairs.find(p=>p.p1===a&&p.p2===b&&p.type==='tt'))return;
+  if(pairs.some(p=>p.p1===a&&p.p2===b&&p.type==='tt'))return;
   const col=PCOLS2[colorIdx%PCOLS2.length];colorIdx++;
   pairs.push({p1:a,p2:b,col,id:Date.now(),vis:true,type:'tt'});
   renderChips();
@@ -170,7 +173,7 @@ function addPairTN(){
   if(!natalLons){alert('Primero calcula el natal (botón CALCULAR NATAL)');return;}
   const a=document.getElementById('tp1').value,b=document.getElementById('tp2').value;
   const key=`${a}-n${b}`;
-  if(pairs.find(p=>p.key===key))return;
+  if(pairs.some(p=>p.key===key))return;
   const col=NCOLS[nColorIdx%NCOLS.length];nColorIdx++;
   pairs.push({p1:a,p2:b,col,id:Date.now(),vis:true,type:'tn',key,natalLon:natalLons[b]});
   renderChips();
@@ -230,7 +233,7 @@ function calcSeriesTN(transitPlanet,natalLon,sJD,eJD,mode){
 
 function calcRawScores(sJD,eJD){
   const step=Math.max(1,Math.round((eJD-sJD)/1000));
-  const orb=parseFloat(document.getElementById('orb-sl').value);
+  const orb=Number.parseFloat(document.getElementById('orb-sl').value);
   const active=pairData.filter(p=>p.vis);
   const asps=ASPECTS.filter(a=>aspEn[a.angle]);
   const scores=[];
@@ -280,7 +283,7 @@ function runCalc(){
   const sJD=toJD(document.getElementById('sd').value),eJD=toJD(document.getElementById('ed').value);
   if(eJD<=sJD){alert('Rango inválido');return;}
   if((eJD-sJD)/365.25>100){alert('Máximo 100 años');return;}
-  const mode=parseInt(document.getElementById('mode-sel').value);
+  const mode=Number.parseInt(document.getElementById('mode-sel').value);
   document.getElementById('stat').textContent='CALCULANDO...';
   setTimeout(()=>{
     pairData=pairs.map(p=>{
@@ -306,7 +309,7 @@ function drawChart(){
   ctx.scale(devicePixelRatio,devicePixelRatio);
 
   const W=CW,H=CH,iw=W-ML-MR,ih=mainH-MT;
-  const mode=parseInt(document.getElementById('mode-sel').value);
+  const mode = Number.parseInt(document.getElementById('mode-sel').value, 10);
   const maxY=mode===360?360:180;
   const sJD=toJD(document.getElementById('sd').value),eJD=toJD(document.getElementById('ed').value);
   const totalDays=eJD-sJD;
@@ -441,7 +444,7 @@ function drawChart(){
   // ---- SCORE PANEL ----
   if(!pairData.filter(p=>p.vis).length)return;
   if(!cachedRaw)cachedRaw=calcRawScores(sJD,eJD);
-  const smDays=parseInt(document.getElementById('sm-sl').value);
+  const smDays=Number.parseInt(document.getElementById('sm-sl').value);
   const scores=smoothArr(cachedRaw,smDays);
   if(!scores.length)return;
   const vals=scores.map(s=>s.v);
@@ -513,7 +516,7 @@ cv.addEventListener('mousemove',e=>{
     html+=`<div>${tag}<span style="color:${pd.col}">${SYM[pd.p1]}${pd.p1}–${SYM[pd.p2]}${pd.p2}${pd.type==='tn'?'(n)':''}</span> <span style="color:#7090a8">${cl.a.toFixed(1)}°</span></div>`;
   });
   if(cachedRaw){
-    const sm=parseInt(document.getElementById('sm-sl').value);
+    const sm=Number.parseInt(document.getElementById('sm-sl').value);
     const sc=smoothArr(cachedRaw,sm);
     if(sc.length){
       const sv=sc.reduce((a,b)=>Math.abs(b.jd-hJD)<Math.abs(a.jd-hJD)?b:a);
