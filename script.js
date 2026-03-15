@@ -32,11 +32,11 @@
     Venus: [181.979801, 58517.815676, 0.72333566, 0.00677672, -4.107e-5, 3.39467605, -7.889e-4, 76.67984255, -0.27769418, 131.60246718, 2.68329e-3],
     Earth: [100.464457, 35999.372857, 1.00000261, 0.01671123, -4.392e-5, 0, 0, 0, 0, 102.93768193, 0.32327364],
     Mars: [355.433275, 19140.299314, 1.52371034, 0.09339410, 7.882e-5, 1.84969142, -8.131e-3, 49.55953891, -0.29257343, 336.04084002, 0.44441088],
-    Jupiter: [34.351519, 3034.905961, 5.20288700, 0.04838624, -1.3253e-4, 1.30439695, -1.83714e-3, 100.47390909, 0.20469106, 14.72847983, 0.21252668],
+    Jupiter: [34.351519, 3034.905961, 5.202887, 0.04838624, -1.3253e-4, 1.30439695, -1.83714e-3, 100.47390909, 0.20469106, 14.72847983, 0.21252668],
     Saturn: [50.077444, 1222.113794, 9.53667594, 0.05386179, -5.0991e-4, 2.48599187, 1.93609e-3, 113.66242448, -0.28867794, 92.59887831, -0.41897216],
-    Uranus: [314.055005, 428.4669983, 19.1891846, 0.04725744, -4.397e-5, 0.77263783, -2.42939e-3, 74.01692503, 0.04240589, 170.95427630, 0.40805281],
+    Uranus: [314.055005, 428.4669983, 19.1891846, 0.04725744, -4.397e-5, 0.77263783, -2.42939e-3, 74.01692503, 0.04240589, 170.9542763, 0.40805281],
     Neptune: [304.348665, 218.4862002, 30.0699701, 0.00859048, 5.105e-5, 1.77004347, 3.5372e-4, 131.78422574, -0.00508664, 44.96476227, -0.32241464],
-    Pluto: [238.929, 145.2078, 39.48168677, 0.24880766, 6.32e-5, 17.14104260, 1.1e-5, 110.30347045, -1.8410e-2, 224.06891629, -0.0409232]
+    Pluto: [238.929, 145.2078, 39.48168677, 0.24880766, 6.32e-5, 17.1410426, 1.1e-5, 110.30347045, -1.841e-2, 224.06891629, -0.0409232]
   };
 
   function helioXY(pl, T) {
@@ -70,9 +70,9 @@
     const d = T * 36525;
     const L = n360(218.3165 + 13.176396 * d);
     const M = d2r(n360(134.9634 + 13.064993 * d));
-    const Ms = d2r(n360(357.5291 + 0.985600 * d));
+    const Ms = d2r(n360(357.5291 + 0.9856 * d));
     const D = d2r(n360(297.8502 + 12.190749 * d));
-    const F = d2r(n360(93.2721 + 13.229350 * d));
+    const F = d2r(n360(93.2721 + 13.22935 * d));
     return n360(L + 6.289 * Math.sin(M) + 1.274 * Math.sin(2 * D - M) + 0.658 * Math.sin(2 * D) +
       0.214 * Math.sin(2 * M) - 0.186 * Math.sin(Ms) - 0.114 * Math.sin(2 * F) +
       0.059 * Math.sin(2 * D - 2 * M) + 0.053 * Math.sin(2 * D + M) + 0.046 * Math.sin(2 * D - Ms) +
@@ -92,10 +92,7 @@
     return d > 180 ? 360 - d : d;
   }
 
-  // ─── UI HELPERS ───
-  const getOrb = () => Number.parseFloat(document.getElementById('orb-sl').value) || 7;
-  const getSmooth = () => Number.parseInt(document.getElementById('sm-sl').value, 10) || 10;
-  const getMode = () => Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
+  // ─── DATA & STATE ───
   const SIGNS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
   const signOf = lon => {
     const s = Math.floor(n360(lon) / 30);
@@ -108,18 +105,18 @@
     Jupiter: '♃', Saturn: '♄', Uranus: '⛢', Neptune: '♆', Pluto: '♇'
   };
   const EXTERNOS = ['Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
-  const PCOLS2 = ['#fb923c', '#fbbf24', '#67e8f9', '#818cf8', '#e879f9', '#34d399', '#f87171', '#c084fc', '#60a5fa', '#f472b6', '#a3e635', '#ff6090'];
-  const NCOLS = ['#d08af0', '#a06ad0', '#c060e0', '#e090ff', '#9050c0', '#b070e0', '#f0a0ff', '#8040b0'];
+  const PAIR_COLORS = ['#fb923c', '#fbbf24', '#67e8f9', '#818cf8', '#e879f9', '#34d399', '#f87171', '#c084fc', '#60a5fa', '#f472b6', '#a3e635', '#ff6090'];
+  const NATAL_COLORS = ['#d08af0', '#a06ad0', '#c060e0', '#e090ff', '#9050c0', '#b070e0', '#f0a0ff', '#8040b0'];
 
   const ASPECTS = [
-    { angle: 0, name: 'Cnj', sym: '☌', col: '#b89845', en: true, score: 0, w: 1 },
-    { angle: 30, name: 'Semi', sym: '⚺', col: '#666666', en: false, score: 0.3, w: 0.4 },
-    { angle: 45, name: 'Octi', sym: '∠', col: '#888888', en: false, score: -0.4, w: 0.4 },
-    { angle: 60, name: 'Sex', sym: '⚹', col: '#52b887', en: true, score: 1, w: 0.8 },
-    { angle: 90, name: 'Cua', sym: '□', col: '#c87878', en: true, score: -1, w: 1 },
-    { angle: 120, name: 'Tri', sym: '△', col: '#5a8aaa', en: true, score: 1, w: 1.2 },
-    { angle: 150, name: 'Qui', sym: '⚻', col: '#fb923c', en: false, score: -0.5, w: 0.5 },
-    { angle: 180, name: 'Opo', sym: '☍', col: '#c084fc', en: true, score: -1, w: 1 },
+    { angle: 0,   name: 'Cnj',     sym: '☌', col: '#fcd34d', en: true,  score: 0,    w: 1 },
+    { angle: 30,  name: 'Semi',    sym: '⚺', col: '#666666', en: false, score: 0.3,  w: 0.4 },
+    { angle: 45,  name: 'Octile', sym: '∠', col: '#888888', en: false, score: -0.4, w: 0.4 },
+    { angle: 60,  name: 'Sex',     sym: '⚹', col: '#34d399', en: true,  score: 1,    w: 0.8 },
+    { angle: 90,  name: 'Cua',     sym: '□', col: '#f87171', en: true,  score: -1,   w: 1 },
+    { angle: 120, name: 'Tri',     sym: '△', col: '#60a5fa', en: true,  score: 1,    w: 1.2 },
+    { angle: 150, name: 'Qui',     sym: '⚻', col: '#fb923c', en: false, score: -0.5, w: 0.5 },
+    { angle: 180, name: 'Opo',     sym: '☍', col: '#c084fc', en: true,  score: -1,   w: 1 },
   ];
   let aspEn = Object.fromEntries(ASPECTS.map(a => [a.angle, a.en]));
 
@@ -160,7 +157,7 @@
     const b = p2 || document.getElementById('np2').value;
     if (a === b) { alert('Planetas diferentes'); return; }
     if (pairs.some(p => p.p1 === a && p.p2 === b && p.type === 'tt')) return;
-    const col = PCOLS2[colorIdx % PCOLS2.length]; colorIdx++;
+    const col = PAIR_COLORS[colorIdx % PAIR_COLORS.length]; colorIdx++;
     pairs.push({ p1: a, p2: b, col, id: Date.now(), vis: true, type: 'tt' });
     renderChips();
   }
@@ -179,7 +176,7 @@
     const b = document.getElementById('tp2').value;
     const key = `${a}-n${b}`;
     if (pairs.some(p => p.key === key)) return;
-    const col = NCOLS[nColorIdx % NCOLS.length]; nColorIdx++;
+    const col = NATAL_COLORS[nColorIdx % NATAL_COLORS.length]; nColorIdx++;
     pairs.push({ p1: a, p2: b, col, id: Date.now(), vis: true, type: 'tn', key, natalLon: natalLons[b] });
     renderChips();
   }
@@ -273,7 +270,7 @@
 
   function calcRawScores(sJD, eJD) {
     const step = Math.max(1, Math.round((eJD - sJD) / 1000));
-    const orb = getOrb();
+    const orb = Number.parseFloat(document.getElementById('orb-sl').value) || 7;
     const active = pairData.filter(p => p.vis);
     const asps = ASPECTS.filter(a => aspEn[a.angle]);
     const scores = [];
@@ -328,7 +325,7 @@
     if (eJD <= sJD) { alert('Rango inválido'); return; }
     if ((eJD - sJD) / 365.25 > 100) { alert('Máximo 100 años'); return; }
 
-    const mode = getMode();
+    const mode = Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
     document.getElementById('stat').textContent = 'CALCULANDO...';
 
     setTimeout(() => {
@@ -344,7 +341,9 @@
   }
 
   // ─── DRAW CHART COMPONENTS ───
-  function drawBands(ctx, mode, ML, yd, iw) {
+
+  function drawBands(rc, mode) {
+    const { ctx, ML, yd, iw } = rc;
     const bands = mode === 360 ? [[0, 60], [120, 180], [240, 300]] : [[0, 60], [120, 180]];
     bands.forEach(([lo, hi]) => {
       ctx.fillStyle = 'rgba(255,255,255,0.01)';
@@ -352,7 +351,8 @@
     });
   }
 
-  function drawGrid(ctx, mode, ML, MR, W, yd) {
+  function drawGrid(rc, mode) {
+    const { ctx, ML, MR, W, yd } = rc;
     const gDegs = mode === 360
       ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
       : [0, 30, 60, 90, 120, 150, 180];
@@ -374,8 +374,8 @@
     });
   }
 
-  function drawTimeTicks(ctx, ticks, xj, MT, sBot) {
-
+  function drawTimeTicks(rc, ticks, sBot) {
+    const { ctx, xj, ML, MT } = rc;
     ticks.forEach(jd => {
       const x = xj(jd);
       ctx.strokeStyle = '#181828';
@@ -388,11 +388,6 @@
       const d = new Date((jd - 2440587.5) * 86400000);
       const yr = d.getUTCFullYear();
       const mo = d.getUTCMonth() + 1;
-
-      // Determine if we show MM/YY or YYYY
-      // This logic was previously inline
-      // We'll just show MM/YY if it looks like monthly ticks (diff < 360)
-      // or YYYY otherwise.
       const lbl = (ticks.length > 1 && (ticks[1] - ticks[0]) < 300)
         ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
         : String(yr);
@@ -404,7 +399,8 @@
     });
   }
 
-  function drawAspectLines(ctx, actAsps, maxY, ML, MR, W, yd) {
+  function drawAspectLines(rc, actAsps, maxY) {
+    const { ctx, ML, MR, W, yd } = rc;
     actAsps.forEach(a => {
       if (a.angle > maxY) return;
       const y = yd(a.angle);
@@ -418,9 +414,8 @@
       ctx.stroke();
 
       ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = a.col;
       ctx.globalAlpha = 0.5;
+      ctx.fillStyle = a.col;
       ctx.font = '7px Courier New';
       ctx.textAlign = 'left';
       ctx.fillText(a.sym + ' ' + a.angle + '°', ML + 2, y - 2);
@@ -428,54 +423,45 @@
     });
   }
 
-  function drawCycles(ctx, pairData, xj, yd, mode, actAsps, maxY, ML, MR, W, MT, ih) {
-    const cands = [];
-    const jt = mode === 360 ? 270 : 90;
-
-    // First pass: Calculate dots and paths
-    pairData.filter(p => p.vis).forEach(pd => {
-      if (!pd.pts?.length) return;
-
-      let prev = null;
-      pd.pts.forEach((pt, i) => {
-        // Detect Aspect Crossings
-        if (i > 0 && prev && Math.abs(pt.a - prev.a) < jt) {
-          actAsps.forEach(a => {
-            if (a.angle > maxY) return;
-            const dp = prev.a - a.angle;
-            const dc = pt.a - a.angle;
-            if (dp * dc <= 0) {
-              const frac = Math.abs(dp) / (Math.abs(dp) + Math.abs(dc));
-              const cjd = prev.jd + frac * (pt.jd - prev.jd);
-              const cx = xj(cjd);
-              if (cx >= ML && cx <= W - MR && !cands.some(c => Math.abs(c.x - cx) < 20 && c.ang === a.angle && c.pid === pd.id)) {
-                cands.push({
-                  x: cx, y: yd(a.angle), col: pd.col,
-                  date: fmtD(cjd), ang: a.angle, pid: pd.id, isNatal: pd.type === 'tn'
-                });
-              }
-            }
-          });
-        }
-        prev = pt;
+  function detectCrossings(pd, actAsps, pts, maxY, jt, rc) {
+    const { xj, yd, ML, MR, W } = rc;
+    const hits = [];
+    for (let i = 1; i < pts.length; i++) {
+      const prev = pts[i - 1], cur = pts[i];
+      if (Math.abs(cur.a - prev.a) >= jt) continue;
+      actAsps.forEach(a => {
+        if (a.angle > maxY) return;
+        const dp = prev.a - a.angle, dc = cur.a - a.angle;
+        if (dp * dc > 0) return;
+        const frac = Math.abs(dp) / (Math.abs(dp) + Math.abs(dc));
+        const cjd = prev.jd + frac * (cur.jd - prev.jd);
+        const cx = xj(cjd);
+        if (cx < ML || cx > W - MR) return;
+        if (hits.some(h => Math.abs(h.x - cx) < 20 && h.ang === a.angle && h.pid === pd.id)) return;
+        hits.push({ x: cx, y: yd(a.angle), col: pd.col, date: fmtD(cjd), ang: a.angle, pid: pd.id, isNatal: pd.type === 'tn' });
       });
-    });
+    }
+    return hits;
+  }
 
+  function drawCycles(rc, pairData, mode, actAsps, maxY) {
+    const { ctx, xj, yd, ML, MR, W, MT, ih } = rc;
+    const jt = mode === 360 ? 270 : 90;
+    const visible = pairData.filter(p => p.vis && p.pts?.length);
+
+    const cands = visible.flatMap(pd => detectCrossings(pd, actAsps, pd.pts, maxY, jt, rc));
     const placed = placeLabels(cands);
 
-    // Draw Paths
-    pairData.filter(p => p.vis).forEach(pd => {
-      if (!pd.pts?.length) return;
+    visible.forEach(pd => {
       ctx.strokeStyle = pd.col;
       ctx.lineWidth = pd.type === 'tn' ? 1 : 1.1;
       ctx.globalAlpha = pd.type === 'tn' ? 0.75 : 0.85;
-      if (pd.type === 'tn') ctx.setLineDash([4, 3]); else ctx.setLineDash([]);
+      ctx.setLineDash(pd.type === 'tn' ? [4, 3] : []);
 
       ctx.beginPath();
       let prev = null;
       pd.pts.forEach(pt => {
-        const x = xj(pt.jd);
-        const y = yd(pt.a);
+        const x = xj(pt.jd), y = yd(pt.a);
         if (!prev) {
           ctx.moveTo(x, y);
         } else if (Math.abs(pt.a - prev.a) > jt) {
@@ -491,29 +477,25 @@
       ctx.setLineDash([]);
       ctx.globalAlpha = 1;
 
-      // Label at end of line
-      if (pd.pts.length) {
-        const last = pd.pts[pd.pts.length - 1];
-        const lx = xj(last.jd) + 4;
-        const ly = Math.max(MT + 5, Math.min(yd(last.a), MT + ih - 2));
-        ctx.fillStyle = pd.col;
-        ctx.font = '7px Courier New';
-        ctx.textAlign = 'left';
-        ctx.globalAlpha = 0.65;
-        const lbl = pd.type === 'tn' ? `${SYM[pd.p1]}→${SYM[pd.p2]}n` : `${SYM[pd.p1]}${SYM[pd.p2]}`;
-        ctx.fillText(lbl, Math.min(lx, W - MR - 22), ly);
-        ctx.globalAlpha = 1;
-      }
+      const last = pd.pts[pd.pts.length - 1];
+      const lx = xj(last.jd) + 4;
+      const ly = Math.max(MT + 5, Math.min(yd(last.a), MT + ih - 2));
+      ctx.fillStyle = pd.col;
+      ctx.font = '7px Courier New';
+      ctx.textAlign = 'left';
+      ctx.globalAlpha = 0.65;
+      const lbl = pd.type === 'tn' ? `${SYM[pd.p1]}→${SYM[pd.p2]}n` : `${SYM[pd.p1]}${SYM[pd.p2]}`;
+      ctx.fillText(lbl, Math.min(lx, W - MR - 22), ly);
+      ctx.globalAlpha = 1;
     });
 
-    // Draw Dots
     placed.forEach(c => {
       ctx.beginPath();
       ctx.arc(c.x, c.y, c.isNatal ? 2 : 2.5, 0, Math.PI * 2);
       ctx.fillStyle = c.col;
       ctx.globalAlpha = 0.85;
       ctx.fill();
-      ctx.strokeStyle = '#09090f';
+      ctx.strokeStyle = '#14141e';
       ctx.lineWidth = 0.7;
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -530,16 +512,17 @@
     });
   }
 
-  function drawScoreChart(ctx, scores, xj, sTop, sMid, sBot, ML, W, MR, iw, ticks) {
+  function drawScoreChart(rc, scores, scoreBounds, ticks) {
+    const { ctx, xj, ML, W, MR, iw } = rc;
+    const { sTop, sMid, sBot } = scoreBounds;
     if (!scores.length) return;
-    const vals = scores.map(s => s.v);
-    const maxAbs = Math.max(0.01, vals.reduce((m, v) => Math.max(m, Math.abs(v)), 0));
+
+    const maxAbs = Math.max(0.01, scores.reduce((m, s) => Math.max(m, Math.abs(s.v)), 0));
     const svY = v => sMid - ((v / maxAbs) * (SCORE_H / 2 - 5));
 
     ctx.fillStyle = '#0e0e18';
     ctx.fillRect(ML, sTop, iw, SCORE_H);
 
-    // Ticks on score chart
     ticks.forEach(jd => {
       const x = xj(jd);
       ctx.strokeStyle = '#161622';
@@ -568,35 +551,30 @@
     ctx.fillStyle = '#162414';
     ctx.fillText('ÍNDICE', ML - 3, sTop + 18);
 
-    // Areas
-    ctx.beginPath(); ctx.moveTo(xj(scores[0].jd), sMid);
+    ctx.beginPath();
+    ctx.moveTo(xj(scores[0].jd), sMid);
     scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.max(0, s.v))));
-    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid); ctx.closePath();
-    ctx.fillStyle = 'rgba(82,184,135,0.15)'; ctx.fill();
+    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(52,211,153,0.18)';
+    ctx.fill();
 
-    ctx.beginPath(); ctx.moveTo(xj(scores[0].jd), sMid);
+    ctx.beginPath();
+    ctx.moveTo(xj(scores[0].jd), sMid);
     scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.min(0, s.v))));
-    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid); ctx.closePath();
-    ctx.fillStyle = 'rgba(200,120,120,0.15)'; ctx.fill();
+    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(248,113,113,0.18)';
+    ctx.fill();
 
-    // Line
     ctx.lineWidth = 1.2;
     ctx.globalAlpha = 0.9;
     for (let i = 1; i < scores.length; i++) {
-      const x0 = xj(scores[i - 1].jd);
-      const y0 = svY(scores[i - 1].v);
-      const x1 = xj(scores[i].jd);
-      const y1 = svY(scores[i].v);
       const vm = (scores[i - 1].v + scores[i].v) / 2;
-
-      let segCol = '#b89845';
-      if (vm > 0.08) segCol = '#52b887';
-      else if (vm < -0.08) segCol = '#c87878';
-
-      ctx.strokeStyle = segCol;
+      ctx.strokeStyle = vm > 0.08 ? '#34d399' : vm < -0.08 ? '#f87171' : '#fcd34d';
       ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.lineTo(x1, y1);
+      ctx.moveTo(xj(scores[i - 1].jd), svY(scores[i - 1].v));
+      ctx.lineTo(xj(scores[i].jd), svY(scores[i].v));
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -622,7 +600,7 @@
     ctx.scale(dpr, dpr);
 
     const W = CW, iw = W - ML - MR, ih = mainH - MT;
-    const mode = getMode();
+    const mode = Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
     const maxY = mode === 360 ? 360 : 180;
 
     const sJD = toJD(document.getElementById('sd').value);
@@ -633,14 +611,15 @@
     const yd = d => MT + ih - (d / maxY) * ih;
     const sTop = MT + ih + GAP, sBot = sTop + SCORE_H, sMid = (sTop + sBot) / 2;
 
-    ctx.fillStyle = '#09090f';
+    // Render context — shared by all draw functions
+    const rc = { ctx, xj, yd, ML, MR, W, MT, ih, iw };
+
+    ctx.fillStyle = '#14141e';
     ctx.fillRect(0, 0, W, CH);
 
-    // Backgrounds & Grid
-    drawBands(ctx, mode, ML, yd, iw);
-    drawGrid(ctx, mode, ML, MR, W, yd);
+    drawBands(rc, mode);
+    drawGrid(rc, mode);
 
-    // Ticks Calculation
     const yrs = totalDays / 365.25;
     let tickYears = 10;
     if (yrs <= 5) tickYears = 0.25;
@@ -653,25 +632,21 @@
     const ticks = [];
     for (let jd = refJD; jd <= eJD; jd += tickDays) ticks.push(jd);
 
-    drawTimeTicks(ctx, ticks, xj, MT, sBot);
+    drawTimeTicks(rc, ticks, sBot);
 
-    // Aspects & Data
-    const actAsps = mode === 360 ? ASPECTS.filter(a => aspEn[a.angle]) : ASPECTS.filter(a => a.angle <= 180 && aspEn[a.angle]);
-    drawAspectLines(ctx, actAsps, maxY, ML, MR, W, yd);
-    drawCycles(ctx, pairData, xj, yd, mode, actAsps, maxY, ML, MR, W, MT, ih);
+    const actAsps = ASPECTS.filter(a => aspEn[a.angle] && (mode === 360 || a.angle <= 180));
+    drawAspectLines(rc, actAsps, maxY);
+    drawCycles(rc, pairData, mode, actAsps, maxY);
 
-    // Border
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.6;
     ctx.setLineDash([]);
     ctx.strokeRect(ML, MT, iw, ih);
 
-    // Score Graph
     if (pairData.filter(p => p.vis).length) {
       if (!cachedRaw) cachedRaw = calcRawScores(sJD, eJD);
-      const smDays = getSmooth();
-      const scores = smoothArr(cachedRaw, smDays);
-      drawScoreChart(ctx, scores, xj, sTop, sMid, sBot, ML, W, MR, iw, ticks);
+      const scores = smoothArr(cachedRaw, Number.parseInt(document.getElementById('sm-sl').value, 10) || 10);
+      drawScoreChart(rc, scores, { sTop, sMid, sBot }, ticks);
     }
 
     // Today Line
@@ -723,14 +698,14 @@
     });
 
     if (cachedRaw) {
-      const sm = getSmooth();
+      const sm = Number.parseInt(document.getElementById('sm-sl').value, 10) || 10;
       const sc = smoothArr(cachedRaw, sm);
       if (sc.length) {
         const sv = sc.reduce((a, b) => Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a);
 
-        let col = '#b89845';
-        if (sv.v > 0.08) col = '#52b887';
-        else if (sv.v < -0.08) col = '#c87878';
+        let col = '#fcd34d';
+        if (sv.v > 0.08) col = '#34d399';
+        else if (sv.v < -0.08) col = '#f87171';
 
         html += `<div class="tt-index">Índice: <span style="color:${col}">${sv.v.toFixed(2)}</span></div>`;
       }
