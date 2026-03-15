@@ -92,17 +92,14 @@
     return d > 180 ? 360 - d : d;
   }
 
-  // ─── DATA & STATE ───
+  // ─── UI HELPERS ───
+  const getOrb = () => Number.parseFloat(document.getElementById('orb-sl').value) || 7;
+  const getSmooth = () => Number.parseInt(document.getElementById('sm-sl').value, 10) || 10;
+  const getMode = () => Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
   const SIGNS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
-  const SIGN_NAMES = ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis'];
   const signOf = lon => {
     const s = Math.floor(n360(lon) / 30);
     return SIGNS[s] + (Math.floor(n360(lon) % 30)) + '°';
-  };
-  const signOfText = lon => {
-    const s = Math.floor(n360(lon) / 30);
-    const deg = Math.floor(n360(lon) % 30);
-    return { sym: SIGNS[s], name: SIGN_NAMES[s], deg };
   };
 
   const PLANETS = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
@@ -115,12 +112,12 @@
   const NCOLS = ['#d08af0', '#a06ad0', '#c060e0', '#e090ff', '#9050c0', '#b070e0', '#f0a0ff', '#8040b0'];
 
   const ASPECTS = [
-    { angle: 0, name: 'Cnj', sym: '☌', col: '#fcd34d', en: true, score: 0, w: 1 },
+    { angle: 0, name: 'Cnj', sym: '☌', col: '#b89845', en: true, score: 0, w: 1 },
     { angle: 30, name: 'Semi', sym: '⚺', col: '#666666', en: false, score: 0.3, w: 0.4 },
     { angle: 45, name: 'Octi', sym: '∠', col: '#888888', en: false, score: -0.4, w: 0.4 },
-    { angle: 60, name: 'Sex', sym: '⚹', col: '#34d399', en: true, score: 1, w: 0.8 },
-    { angle: 90, name: 'Cua', sym: '□', col: '#f87171', en: true, score: -1, w: 1 },
-    { angle: 120, name: 'Tri', sym: '△', col: '#60a5fa', en: true, score: 1, w: 1.2 },
+    { angle: 60, name: 'Sex', sym: '⚹', col: '#52b887', en: true, score: 1, w: 0.8 },
+    { angle: 90, name: 'Cua', sym: '□', col: '#c87878', en: true, score: -1, w: 1 },
+    { angle: 120, name: 'Tri', sym: '△', col: '#5a8aaa', en: true, score: 1, w: 1.2 },
     { angle: 150, name: 'Qui', sym: '⚻', col: '#fb923c', en: false, score: -0.5, w: 0.5 },
     { angle: 180, name: 'Opo', sym: '☍', col: '#c084fc', en: true, score: -1, w: 1 },
   ];
@@ -141,20 +138,11 @@
     const T = (jd - J2000) / 36525;
     natalLons = {};
     PLANETS.forEach(p => { natalLons[p] = getLon(p, T); });
-
     const tag = document.getElementById('natal-tag');
-    const rows = PLANETS.map(p => {
-      const { sym, name, deg } = signOfText(natalLons[p]);
-      return `<span class="natal-row">` +
-        `<span class="natal-planet-sym">${SYM[p]}</span>` +
-        `<span class="natal-planet-name">${p}</span>` +
-        `<span class="natal-deg">${deg}°</span>` +
-        `<span class="natal-sign-sym">${sym}</span>` +
-        `<span class="natal-sign-name">${name}</span>` +
-        `</span>`;
-    }).join('');
-    tag.innerHTML = `<span class="natal-date-label">${date} ${time}</span>${rows}`;
-
+    const parts = PLANETS.map(p =>
+      `<span class="natal-sym">${SYM[p]}</span><span class="natal-pos">${signOf(natalLons[p])}</span>`
+    );
+    tag.innerHTML = `<span class="natal-date">${date} ${time}</span>${parts.join(' ')}`;
     invalidateScore();
     if (pairData.length) drawChart();
   }
@@ -285,7 +273,7 @@
 
   function calcRawScores(sJD, eJD) {
     const step = Math.max(1, Math.round((eJD - sJD) / 1000));
-    const orb = Number.parseFloat(document.getElementById('orb-sl').value);
+    const orb = getOrb();
     const active = pairData.filter(p => p.vis);
     const asps = ASPECTS.filter(a => aspEn[a.angle]);
     const scores = [];
@@ -340,7 +328,7 @@
     if (eJD <= sJD) { alert('Rango inválido'); return; }
     if ((eJD - sJD) / 365.25 > 100) { alert('Máximo 100 años'); return; }
 
-    const mode = Number.parseInt(document.getElementById('mode-sel').value, 10);
+    const mode = getMode();
     document.getElementById('stat').textContent = 'CALCULANDO...';
 
     setTimeout(() => {
@@ -525,7 +513,7 @@
       ctx.fillStyle = c.col;
       ctx.globalAlpha = 0.85;
       ctx.fill();
-      ctx.strokeStyle = '#14141e';
+      ctx.strokeStyle = '#09090f';
       ctx.lineWidth = 0.7;
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -545,7 +533,7 @@
   function drawScoreChart(ctx, scores, xj, sTop, sMid, sBot, ML, W, MR, iw, ticks) {
     if (!scores.length) return;
     const vals = scores.map(s => s.v);
-    const maxAbs = Math.max(0.01, ...vals.map(Math.abs));
+    const maxAbs = Math.max(0.01, vals.reduce((m, v) => Math.max(m, Math.abs(v)), 0));
     const svY = v => sMid - ((v / maxAbs) * (SCORE_H / 2 - 5));
 
     ctx.fillStyle = '#0e0e18';
@@ -584,12 +572,12 @@
     ctx.beginPath(); ctx.moveTo(xj(scores[0].jd), sMid);
     scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.max(0, s.v))));
     ctx.lineTo(xj(scores[scores.length - 1].jd), sMid); ctx.closePath();
-    ctx.fillStyle = 'rgba(52,211,153,0.18)'; ctx.fill();
+    ctx.fillStyle = 'rgba(82,184,135,0.15)'; ctx.fill();
 
     ctx.beginPath(); ctx.moveTo(xj(scores[0].jd), sMid);
     scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.min(0, s.v))));
     ctx.lineTo(xj(scores[scores.length - 1].jd), sMid); ctx.closePath();
-    ctx.fillStyle = 'rgba(248,113,113,0.18)'; ctx.fill();
+    ctx.fillStyle = 'rgba(200,120,120,0.15)'; ctx.fill();
 
     // Line
     ctx.lineWidth = 1.2;
@@ -601,9 +589,9 @@
       const y1 = svY(scores[i].v);
       const vm = (scores[i - 1].v + scores[i].v) / 2;
 
-      let segCol = '#fcd34d';
-      if (vm > 0.08) segCol = '#34d399';
-      else if (vm < -0.08) segCol = '#f87171';
+      let segCol = '#b89845';
+      if (vm > 0.08) segCol = '#52b887';
+      else if (vm < -0.08) segCol = '#c87878';
 
       ctx.strokeStyle = segCol;
       ctx.beginPath();
@@ -624,16 +612,17 @@
     const mainH = Math.max(260, Math.min(460, Math.round(CW * 0.44)));
     CH = mainH + GAP + SCORE_H + MB;
 
-    cv.width = CW * devicePixelRatio;
-    cv.height = CH * devicePixelRatio;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = CW * dpr;
+    cv.height = CH * dpr;
     cv.style.width = CW + 'px';
     cv.style.height = CH + 'px';
 
     const ctx = cv.getContext('2d');
-    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.scale(dpr, dpr);
 
     const W = CW, iw = W - ML - MR, ih = mainH - MT;
-    const mode = Number.parseInt(document.getElementById('mode-sel').value, 10);
+    const mode = getMode();
     const maxY = mode === 360 ? 360 : 180;
 
     const sJD = toJD(document.getElementById('sd').value);
@@ -644,7 +633,7 @@
     const yd = d => MT + ih - (d / maxY) * ih;
     const sTop = MT + ih + GAP, sBot = sTop + SCORE_H, sMid = (sTop + sBot) / 2;
 
-    ctx.fillStyle = '#14141e';
+    ctx.fillStyle = '#09090f';
     ctx.fillRect(0, 0, W, CH);
 
     // Backgrounds & Grid
@@ -680,7 +669,7 @@
     // Score Graph
     if (pairData.filter(p => p.vis).length) {
       if (!cachedRaw) cachedRaw = calcRawScores(sJD, eJD);
-      const smDays = Number.parseInt(document.getElementById('sm-sl').value, 10);
+      const smDays = getSmooth();
       const scores = smoothArr(cachedRaw, smDays);
       drawScoreChart(ctx, scores, xj, sTop, sMid, sBot, ML, W, MR, iw, ticks);
     }
@@ -734,14 +723,14 @@
     });
 
     if (cachedRaw) {
-      const sm = Number.parseInt(document.getElementById('sm-sl').value, 10);
+      const sm = getSmooth();
       const sc = smoothArr(cachedRaw, sm);
       if (sc.length) {
         const sv = sc.reduce((a, b) => Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a);
 
-        let col = '#fcd34d';
-        if (sv.v > 0.08) col = '#34d399';
-        else if (sv.v < -0.08) col = '#f87171';
+        let col = '#b89845';
+        if (sv.v > 0.08) col = '#52b887';
+        else if (sv.v < -0.08) col = '#c87878';
 
         html += `<div class="tt-index">Índice: <span style="color:${col}">${sv.v.toFixed(2)}</span></div>`;
       }
