@@ -35,11 +35,14 @@ body{background:#14141e;color:#7a8b9e;font-family:-apple-system, BlinkMacSystemF
 .natal-bar input[type=date],.natal-bar input[type=time]{width:auto}
 .natal-bar select{background:#14141e;border:1px solid #2a1e3a;color:#b090d0;padding:4px 6px;border-radius:3px;font-size:12px;font-family:inherit}
 .natal-title{color:#4a3a5a;font-size:10px}
-.natal-tag{background:#1a1028;border:1px solid #2a1e3a;border-radius:3px;padding:3px 8px;font-size:10px;color:#c0a0e0;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
-/* natal-tag dynamic spans (set via JS) */
-.natal-date{color:#9070b0;margin-right:4px}
-.natal-sym{color:#d0b0f0}
-.natal-pos{color:#b090d0}
+.natal-tag{background:#1a1028;border:1px solid #2a1e3a;border-radius:3px;padding:4px 8px;font-size:10px;color:#c0a0e0;display:flex;gap:2px 10px;align-items:center;flex-wrap:wrap}
+.natal-date-label{color:#5a4a6a;font-size:9px;margin-right:4px;flex-shrink:0}
+.natal-row{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.natal-planet-sym{color:#d0b0f0;font-size:11px}
+.natal-planet-name{color:#6a5a7a;font-size:9px}
+.natal-deg{color:#b090d0;font-variant-numeric:tabular-nums;min-width:20px;text-align:right}
+.natal-sign-sym{color:#9070b0;font-size:10px}
+.natal-sign-name{color:#c0a0e0;font-size:10px}
 
 /* ── Pairs bar ── */
 .pairs-bar{background:#0c0c16;border-bottom:1px solid #1a1a28;padding:4px 10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:28px}
@@ -71,51 +74,6 @@ canvas{display:block}
 .at-score-pos{color:#34d399}
 .at-score-neg{color:#f87171}
 .at-score-neu{color:#fcd34d}
-
-/* ── Extremes bar ── */
-.ext-bar{background:#0a0a12;border-top:1px solid #141420;padding:4px 10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:26px}
-.ext-section{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
-.ext-title{font-size:9px;letter-spacing:.07em;margin-right:2px}
-.ext-title-pos{color:#1a4a1a}
-.ext-title-neg{color:#4a1a1a}
-.ext-sep{color:#1a1a28;margin:0 6px}
-.ext-chip{display:flex;align-items:center;gap:4px;padding:2px 7px;border-radius:2px;font-size:10px;cursor:pointer;border:1px solid transparent;transition:opacity .15s}
-.ext-chip:hover{opacity:.75}
-.ext-chip-pos{background:#0a1a0a;border-color:#1a3a1a}
-.ext-chip-neg{background:#1a0a0a;border-color:#3a1a1a}
-.ext-chip.active-chip{outline:1px solid #2a4a2a}
-.ext-chip-neg.active-chip{outline-color:#4a2a2a}
-.ext-date{color:#405060;font-variant-numeric:tabular-nums}
-.ext-val-pos{color:#34d399;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
-.ext-val-neg{color:#f87171;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
-.ext-rank{color:#1e2e3e;font-size:9px;min-width:10px}
-.ext-show-tbl{border:1px solid #1a2a3a;color:#3a6a8a;background:#080e14;padding:2px 9px;border-radius:2px;cursor:pointer;font-size:10px;font-family:inherit;margin-left:8px}
-.ext-show-tbl:hover{background:#0e1a22}
-
-/* ── Table panel ── */
-.table-panel{background:#080810;border-top:1px solid #141428;max-height:260px;display:flex;flex-direction:column}
-.table-header{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;border-bottom:1px solid #101020;flex-shrink:0}
-.table-title{color:#2a4a6a;font-size:9px;letter-spacing:.08em}
-.table-actions{display:flex;gap:6px}
-.btn-tbl{border:1px solid #1a2a3a;color:#3a6a8a;background:#080e14;padding:2px 8px;border-radius:2px;cursor:pointer;font-size:10px;font-family:inherit}
-.btn-tbl:hover{background:#0e1a22}
-.btn-tbl-close{border-color:#2a1a1a;color:#6a3a3a}
-.btn-tbl-close:hover{background:#1a0808}
-.table-scroll{overflow-x:auto;overflow-y:auto;flex:1}
-table.ext-table{border-collapse:collapse;font-size:10px;white-space:nowrap;min-width:100%}
-table.ext-table th{background:#0c0c1a;color:#2a4a5a;font-weight:normal;padding:3px 8px;border-bottom:1px solid #141428;position:sticky;top:0;text-align:left;letter-spacing:.05em;font-size:9px}
-table.ext-table td{padding:2px 8px;border-bottom:1px solid #0e0e1c;vertical-align:middle}
-table.ext-table tr:hover td{background:#0c0c18}
-.td-rank{color:#1e2e3e;font-size:9px}
-.td-type-pos{color:#34d399}
-.td-type-neg{color:#f87171}
-.td-date{color:#405060;font-variant-numeric:tabular-nums}
-.td-val-pos{color:#34d399;font-variant-numeric:tabular-nums}
-.td-val-neg{color:#f87171;font-variant-numeric:tabular-nums}
-.td-asp{text-align:center}
-.td-asp-hit{font-size:10px}
-.td-asp-dev{color:#2a3a4a;font-size:8px;display:block;line-height:1}
-.td-asp-none{color:#161622}
 
 /* ── Bottom bar ── */
 .bot{background:#0a0a14;border-top:1px solid #141422;padding:4px 10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
