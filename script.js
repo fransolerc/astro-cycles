@@ -602,6 +602,66 @@
     ctx.strokeRect(ML, sTop, iw, SCORE_H);
   }
 
+  function findExtremes(scores, n = 8, minGapDays = 45) {
+    if (scores.length < 3) return { peaks: [], valleys: [] };
+    const rawPeaks = [], rawValleys = [];
+
+    for (let i = 1; i < scores.length - 1; i++) {
+      const p = scores[i - 1].v, c = scores[i].v, nx = scores[i + 1].v;
+      if (c > p && c > nx) rawPeaks.push({ jd: scores[i].jd, v: c });
+      else if (c < p && c < nx) rawValleys.push({ jd: scores[i].jd, v: c });
+    }
+
+    const filterByGap = arr => {
+      const out = [];
+      arr.forEach(pt => {
+        if (!out.some(r => Math.abs(r.jd - pt.jd) < minGapDays)) out.push(pt);
+      });
+      return out.slice(0, n);
+    };
+
+    rawPeaks.sort((a, b) => b.v - a.v);
+    rawValleys.sort((a, b) => a.v - b.v);
+    return { peaks: filterByGap(rawPeaks), valleys: filterByGap(rawValleys) };
+  }
+
+  function renderExtremes() {
+    const bar = document.getElementById('ext-bar');
+    if (!bar) return;
+    if (!cachedRaw || !cachedRaw.length) { bar.innerHTML = ''; return; }
+
+    const smDays = Number.parseInt(document.getElementById('sm-sl').value, 10);
+    const scores = smoothArr(cachedRaw, smDays);
+    const { peaks, valleys } = findExtremes(scores);
+
+    if (!peaks.length && !valleys.length) { bar.innerHTML = ''; return; }
+
+    const makeChip = (pt, idx, isPos) => {
+      const cls = isPos ? 'ext-chip-pos' : 'ext-chip-neg';
+      const valCls = isPos ? 'ext-val-pos' : 'ext-val-neg';
+      const sign = isPos ? '+' : '';
+      return `<div class="ext-chip ${cls}">` +
+        `<span class="ext-rank">${idx + 1}</span>` +
+        `<span class="ext-date">${fmtD(pt.jd)}</span>` +
+        `<span class="${valCls}">${sign}${pt.v.toFixed(2)}</span>` +
+        `</div>`;
+    };
+
+    let html = `<div class="ext-section">` +
+      `<span class="ext-title ext-title-pos">▲ MÁXIMOS</span>` +
+      peaks.map((p, i) => makeChip(p, i, true)).join('') +
+      `</div>`;
+
+    html += `<span class="ext-sep">|</span>`;
+
+    html += `<div class="ext-section">` +
+      `<span class="ext-title ext-title-neg">▼ MÍNIMOS</span>` +
+      valleys.map((v, i) => makeChip(v, i, false)).join('') +
+      `</div>`;
+
+    bar.innerHTML = html;
+  }
+
   function drawChart() {
     const cv = document.getElementById('cv');
     const wrap = document.getElementById('cwrap');
@@ -689,6 +749,8 @@
     ctx.font = '7px Courier New';
     ctx.textAlign = 'left';
     ctx.fillText('— T–T  - - T–N(natal)', ML + 2, MT + ih - 3);
+
+    renderExtremes();
   }
 
   // ─── EVENTS ───
@@ -771,6 +833,7 @@
   document.getElementById('sm-sl').addEventListener('input', function() {
     document.getElementById('sm-v').textContent = this.value + 'd';
     drawChart();
+    renderExtremes();
   });
 
   renderAspBar();

@@ -72,6 +72,21 @@ canvas{display:block}
 .at-score-neg{color:#f87171}
 .at-score-neu{color:#fcd34d}
 
+/* ── Extremes bar ── */
+.ext-bar{background:#0a0a12;border-top:1px solid #141420;padding:5px 10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:26px}
+.ext-section{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ext-title{font-size:9px;letter-spacing:.07em;margin-right:2px}
+.ext-title-pos{color:#1a3a1a}
+.ext-title-neg{color:#3a1a1a}
+.ext-sep{color:#1a1a28;margin:0 6px;font-size:12px}
+.ext-chip{display:flex;align-items:center;gap:4px;padding:2px 7px;border-radius:2px;font-size:10px;cursor:default;border:1px solid transparent}
+.ext-chip-pos{background:#0a1a0a;border-color:#1a3a1a}
+.ext-chip-neg{background:#1a0a0a;border-color:#3a1a1a}
+.ext-date{color:#405060;font-variant-numeric:tabular-nums}
+.ext-val-pos{color:#34d399;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
+.ext-val-neg{color:#f87171;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
+.ext-rank{color:#1e2e3e;font-size:9px;min-width:10px}
+
 /* ── Bottom bar ── */
 .bot{background:#0a0a14;border-top:1px solid #141422;padding:4px 10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .bot label{color:#1e2e3e;font-size:10px;letter-spacing:.06em}
