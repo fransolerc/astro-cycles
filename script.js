@@ -368,7 +368,7 @@
       ctx.stroke();
 
       ctx.fillStyle = isMajor ? '#3a4a5a' : '#2a3040';
-      ctx.font = (isMajor ? 'bold ' : '') + '8px Courier New';
+      ctx.font = (isMajor ? 'bold ' : '') + '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(deg + '°', ML - 3, y + 3);
     });
@@ -393,7 +393,7 @@
         : String(yr);
 
       ctx.fillStyle = '#2a3a50';
-      ctx.font = '8px Courier New';
+      ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(lbl, x, sBot + 11);
     });
@@ -416,7 +416,7 @@
       ctx.setLineDash([]);
       ctx.globalAlpha = 0.5;
       ctx.fillStyle = a.col;
-      ctx.font = '7px Courier New';
+      ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(a.sym + ' ' + a.angle + '°', ML + 2, y - 2);
       ctx.globalAlpha = 1;
@@ -481,7 +481,7 @@
       const lx = xj(last.jd) + 4;
       const ly = Math.max(MT + 5, Math.min(yd(last.a), MT + ih - 2));
       ctx.fillStyle = pd.col;
-      ctx.font = '7px Courier New';
+      ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.globalAlpha = 0.65;
       const lbl = pd.type === 'tn' ? `${SYM[pd.p1]}→${SYM[pd.p2]}n` : `${SYM[pd.p1]}${SYM[pd.p2]}`;
@@ -500,10 +500,10 @@
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      const ly = c.y - 6 - (c.row * 9);
+      const ly = c.y - 8 - (c.row * 13);
       if (ly > MT) {
         ctx.fillStyle = c.col;
-        ctx.font = '7px Courier New';
+        ctx.font = '12px Inter, system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.globalAlpha = 0.7;
         ctx.fillText(c.date, c.x, ly);
@@ -543,7 +543,7 @@
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#1e3a2a';
-    ctx.font = '7px Courier New';
+    ctx.font = '12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText('+', ML - 3, sTop + 8);
     ctx.fillText('0', ML - 3, sMid + 3);
@@ -659,13 +659,13 @@
       ctx.beginPath(); ctx.moveTo(tx, MT); ctx.lineTo(tx, sBot); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = 'rgba(255,255,100,0.35)';
-      ctx.font = '7px Courier New';
+      ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('HOY', tx, MT + 8);
     }
 
     ctx.fillStyle = '#2a3a4a';
-    ctx.font = '7px Courier New';
+    ctx.font = '12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('— T–T  - - T–N(natal)', ML + 2, MT + ih - 3);
   }
