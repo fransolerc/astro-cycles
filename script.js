@@ -229,23 +229,48 @@
       const el = document.createElement('div');
       el.className = 'at' + (aspEn[a.angle] ? '' : ' off');
 
-      let sc = '●';
-      let scClass = 'at-score at-score-neu';
-      if (a.score > 0) {
-        sc = '▲';
-        scClass = 'at-score at-score-pos';
-      } else if (a.score < 0) {
-        sc = '▼';
-        scClass = 'at-score at-score-neg';
-      }
+      const scoreClass = a.score > 0 ? 'at-score at-score-pos' : a.score < 0 ? 'at-score at-score-neg' : 'at-score at-score-neu';
+      const scoreSign  = a.score > 0 ? '+' : '';
 
-      el.innerHTML = `<div class="ald" style="background:${a.col}"></div><span style="color:${a.col}">${a.sym} ${a.angle}°</span> <span class="${scClass}">${sc}</span>`;
+      el.innerHTML =
+        `<div class="ald" style="background:${a.col}"></div>` +
+        `<span style="color:${a.col}">${a.sym} ${a.angle}°</span>` +
+        `<span class="${scoreClass} at-score-val" title="Clic para editar score">${scoreSign}${a.score}</span>`;
+
       el.addEventListener('click', () => {
         aspEn[a.angle] = !aspEn[a.angle];
         el.className = 'at' + (aspEn[a.angle] ? '' : ' off');
         invalidateScore();
         drawChart();
       });
+
+      const scoreEl = el.querySelector('.at-score-val');
+      scoreEl.addEventListener('click', e => {
+        e.stopPropagation();
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.className = 'at-score-input';
+        inp.value = a.score;
+        inp.min = -3; inp.max = 3; inp.step = 0.1;
+        scoreEl.replaceWith(inp);
+        inp.focus();
+        inp.select();
+
+        const commit = () => {
+          const raw = Number.parseFloat(inp.value);
+          a.score = Number.isNaN(raw) ? a.score : Math.max(-3, Math.min(3, Number.parseFloat(raw.toFixed(1))));
+          invalidateScore();
+          renderAspBar();
+          drawChart();
+        };
+        inp.addEventListener('blur', commit);
+        inp.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter')  inp.blur();
+          if (ev.key === 'Escape') renderAspBar();
+          ev.stopPropagation();
+        });
+      });
+
       bar.appendChild(el);
     });
   }
