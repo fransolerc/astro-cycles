@@ -216,6 +216,17 @@ input[type=number] { width: 64px; }
 .canvas-wrap { position: relative; }
 canvas { display: block; }
 
+.vline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(208,188,255,.55);
+  pointer-events: none;
+  display: none;
+  z-index: 5;
+}
+
 #tt {
   background: var(--md-sys-color-surface-container-highest);
   border-radius: var(--r-md);

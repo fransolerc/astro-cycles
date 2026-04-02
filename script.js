@@ -123,7 +123,7 @@
   let pairs = [], pairData = [], colorIdx = 0, nColorIdx = 0;
   let natalLons = null;
   let cachedRaw = null;
-  const ML = 48, MR = 8, MT = 10, MB = 18;
+  const MARGIN_LEFT = 48, MARGIN_RIGHT = 8, MARGIN_TOP = 10, MARGIN_BOTTOM = 18;
   const SCORE_H = 72, GAP = 8;
   let CW = 0, CH = 0;
 
@@ -229,8 +229,11 @@
       const el = document.createElement('div');
       el.className = 'at' + (aspEn[a.angle] ? '' : ' off');
 
-      const scoreClass = a.score > 0 ? 'at-score at-score-pos' : a.score < 0 ? 'at-score at-score-neg' : 'at-score at-score-neu';
-      const scoreSign  = a.score > 0 ? '+' : '';
+      let scoreClass;
+      if (a.score > 0) scoreClass = 'at-score at-score-pos';
+      else if (a.score < 0) scoreClass = 'at-score at-score-neg';
+      else scoreClass = 'at-score at-score-neu';
+      const scoreSign = a.score > 0 ? '+' : '';
 
       el.innerHTML =
         `<div class="ald" style="background:${a.col}"></div>` +
@@ -250,7 +253,7 @@
         const inp = document.createElement('input');
         inp.type = 'number';
         inp.className = 'at-score-input';
-        inp.value = a.score;
+        inp.value = String(a.score);
         inp.min = -3; inp.max = 3; inp.step = 0.1;
         scoreEl.replaceWith(inp);
         inp.focus();
@@ -368,16 +371,16 @@
   // ─── DRAW CHART COMPONENTS ───
 
   function drawBands(rc, mode) {
-    const { ctx, ML, yd, iw } = rc;
+    const { ctx, MARGIN_LEFT, yd, iw } = rc;
     const bands = mode === 360 ? [[0, 60], [120, 180], [240, 300]] : [[0, 60], [120, 180]];
     bands.forEach(([lo, hi]) => {
       ctx.fillStyle = 'rgba(255,255,255,0.01)';
-      ctx.fillRect(ML, yd(hi), iw, yd(lo) - yd(hi));
+      ctx.fillRect(MARGIN_LEFT, yd(hi), iw, yd(lo) - yd(hi));
     });
   }
 
   function drawGrid(rc, mode) {
-    const { ctx, ML, MR, W, yd } = rc;
+    const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     const gDegs = mode === 360
       ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
       : [0, 30, 60, 90, 120, 150, 180];
@@ -388,34 +391,37 @@
       ctx.strokeStyle = isMajor ? '#1e2e3e' : '#161622';
       ctx.lineWidth = isMajor ? 0.8 : 0.4;
       ctx.beginPath();
-      ctx.moveTo(ML, y);
-      ctx.lineTo(W - MR, y);
+      ctx.moveTo(MARGIN_LEFT, y);
+      ctx.lineTo(W - MARGIN_RIGHT, y);
       ctx.stroke();
 
       ctx.fillStyle = isMajor ? '#3a4a5a' : '#2a3040';
       ctx.font = (isMajor ? 'bold ' : '') + '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(deg + '°', ML - 3, y + 3);
+      ctx.fillText(deg + '°', MARGIN_LEFT - 3, y + 3);
     });
   }
 
   function drawTimeTicks(rc, ticks, sBot) {
-    const { ctx, xj, ML, MT } = rc;
+    const { ctx, xj, MARGIN_TOP } = rc;
     ticks.forEach(jd => {
       const x = xj(jd);
       ctx.strokeStyle = '#181828';
       ctx.lineWidth = 0.4;
       ctx.beginPath();
-      ctx.moveTo(x, MT);
+      ctx.moveTo(x, MARGIN_TOP);
       ctx.lineTo(x, sBot);
       ctx.stroke();
 
       const d = new Date((jd - 2440587.5) * 86400000);
       const yr = d.getUTCFullYear();
       const mo = d.getUTCMonth() + 1;
-      const lbl = (ticks.length > 1 && (ticks[1] - ticks[0]) < 300)
-        ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
-        : String(yr);
+      let lbl;
+      if (ticks.length > 1 && (ticks[1] - ticks[0]) < 300) {
+        lbl = `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`;
+      } else {
+        lbl = String(yr);
+      }
 
       ctx.fillStyle = '#2a3a50';
       ctx.font = '12px Inter, system-ui, sans-serif';
@@ -425,7 +431,7 @@
   }
 
   function drawAspectLines(rc, actAsps, maxY) {
-    const { ctx, ML, MR, W, yd } = rc;
+    const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     actAsps.forEach(a => {
       if (a.angle > maxY) return;
       const y = yd(a.angle);
@@ -434,8 +440,8 @@
       ctx.setLineDash([2, 6]);
       ctx.globalAlpha = 0.35;
       ctx.beginPath();
-      ctx.moveTo(ML, y);
-      ctx.lineTo(W - MR, y);
+      ctx.moveTo(MARGIN_LEFT, y);
+      ctx.lineTo(W - MARGIN_RIGHT, y);
       ctx.stroke();
 
       ctx.setLineDash([]);
@@ -443,13 +449,13 @@
       ctx.fillStyle = a.col;
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(a.sym + ' ' + a.angle + '°', ML + 2, y - 2);
+      ctx.fillText(a.sym + ' ' + a.angle + '°', MARGIN_LEFT + 2, y - 2);
       ctx.globalAlpha = 1;
     });
   }
 
   function detectCrossings(pd, actAsps, pts, maxY, jt, rc) {
-    const { xj, yd, ML, MR, W } = rc;
+    const { xj, yd, MARGIN_LEFT, MARGIN_RIGHT, W } = rc;
     const hits = [];
     for (let i = 1; i < pts.length; i++) {
       const prev = pts[i - 1], cur = pts[i];
@@ -461,7 +467,7 @@
         const frac = Math.abs(dp) / (Math.abs(dp) + Math.abs(dc));
         const cjd = prev.jd + frac * (cur.jd - prev.jd);
         const cx = xj(cjd);
-        if (cx < ML || cx > W - MR) return;
+        if (cx < MARGIN_LEFT || cx > W - MARGIN_RIGHT) return;
         if (hits.some(h => Math.abs(h.x - cx) < 20 && h.ang === a.angle && h.pid === pd.id)) return;
         hits.push({ x: cx, y: yd(a.angle), col: pd.col, date: fmtD(cjd), ang: a.angle, pid: pd.id, isNatal: pd.type === 'tn' });
       });
@@ -470,7 +476,7 @@
   }
 
   function drawCycles(rc, pairData, mode, actAsps, maxY) {
-    const { ctx, xj, yd, ML, MR, W, MT, ih } = rc;
+    const { ctx, xj, yd, MARGIN_RIGHT, W, MARGIN_TOP, ih } = rc;
     const jt = mode === 360 ? 270 : 90;
     const visible = pairData.filter(p => p.vis && p.pts?.length);
 
@@ -504,13 +510,13 @@
 
       const last = pd.pts[pd.pts.length - 1];
       const lx = xj(last.jd) + 4;
-      const ly = Math.max(MT + 5, Math.min(yd(last.a), MT + ih - 2));
+      const ly = Math.max(MARGIN_TOP + 5, Math.min(yd(last.a), MARGIN_TOP + ih - 2));
       ctx.fillStyle = pd.col;
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.globalAlpha = 0.65;
       const lbl = pd.type === 'tn' ? `${SYM[pd.p1]}→${SYM[pd.p2]}n` : `${SYM[pd.p1]}${SYM[pd.p2]}`;
-      ctx.fillText(lbl, Math.min(lx, W - MR - 22), ly);
+      ctx.fillText(lbl, Math.min(lx, W - MARGIN_RIGHT - 22), ly);
       ctx.globalAlpha = 1;
     });
 
@@ -526,7 +532,7 @@
       ctx.globalAlpha = 1;
 
       const ly = c.y - 8 - (c.row * 13);
-      if (ly > MT) {
+      if (ly > MARGIN_TOP) {
         ctx.fillStyle = c.col;
         ctx.font = '12px Inter, system-ui, sans-serif';
         ctx.textAlign = 'center';
@@ -538,7 +544,7 @@
   }
 
   function drawScoreChart(rc, scores, scoreBounds, ticks) {
-    const { ctx, xj, ML, W, MR, iw } = rc;
+    const { ctx, xj, MARGIN_LEFT, W, MARGIN_RIGHT, iw } = rc;
     const { sTop, sMid, sBot } = scoreBounds;
     if (!scores.length) return;
 
@@ -546,7 +552,7 @@
     const svY = v => sMid - ((v / maxAbs) * (SCORE_H / 2 - 5));
 
     ctx.fillStyle = '#0e0e18';
-    ctx.fillRect(ML, sTop, iw, SCORE_H);
+    ctx.fillRect(MARGIN_LEFT, sTop, iw, SCORE_H);
 
     ticks.forEach(jd => {
       const x = xj(jd);
@@ -562,19 +568,19 @@
     ctx.lineWidth = 0.6;
     ctx.setLineDash([3, 6]);
     ctx.beginPath();
-    ctx.moveTo(ML, sMid);
-    ctx.lineTo(W - MR, sMid);
+    ctx.moveTo(MARGIN_LEFT, sMid);
+    ctx.lineTo(W - MARGIN_RIGHT, sMid);
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#1e3a2a';
     ctx.font = '12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText('+', ML - 3, sTop + 8);
-    ctx.fillText('0', ML - 3, sMid + 3);
-    ctx.fillText('–', ML - 3, sBot - 2);
+    ctx.fillText('+', MARGIN_LEFT - 3, sTop + 8);
+    ctx.fillText('0', MARGIN_LEFT - 3, sMid + 3);
+    ctx.fillText('–', MARGIN_LEFT - 3, sBot - 2);
     ctx.fillStyle = '#162414';
-    ctx.fillText('ÍNDICE', ML - 3, sTop + 18);
+    ctx.fillText('ÍNDICE', MARGIN_LEFT - 3, sTop + 18);
 
     ctx.beginPath();
     ctx.moveTo(xj(scores[0].jd), sMid);
@@ -596,7 +602,9 @@
     ctx.globalAlpha = 0.9;
     for (let i = 1; i < scores.length; i++) {
       const vm = (scores[i - 1].v + scores[i].v) / 2;
-      ctx.strokeStyle = vm > 0.08 ? '#34d399' : vm < -0.08 ? '#f87171' : '#fcd34d';
+      if (vm > 0.08) ctx.strokeStyle = '#34d399';
+      else if (vm < -0.08) ctx.strokeStyle = '#f87171';
+      else ctx.strokeStyle = '#fcd34d';
       ctx.beginPath();
       ctx.moveTo(xj(scores[i - 1].jd), svY(scores[i - 1].v));
       ctx.lineTo(xj(scores[i].jd), svY(scores[i].v));
@@ -605,7 +613,7 @@
     ctx.globalAlpha = 1;
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.5;
-    ctx.strokeRect(ML, sTop, iw, SCORE_H);
+    ctx.strokeRect(MARGIN_LEFT, sTop, iw, SCORE_H);
   }
 
   function drawChart() {
@@ -613,7 +621,7 @@
     const wrap = document.getElementById('cwrap');
     CW = wrap?.clientWidth || 700;
     const mainH = Math.max(260, Math.min(460, Math.round(CW * 0.44)));
-    CH = mainH + GAP + SCORE_H + MB;
+    CH = mainH + GAP + SCORE_H + MARGIN_BOTTOM;
 
     const dpr = window.devicePixelRatio || 1;
     cv.width = CW * dpr;
@@ -624,7 +632,7 @@
     const ctx = cv.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    const W = CW, iw = W - ML - MR, ih = mainH - MT;
+    const W = CW, iw = W - MARGIN_LEFT - MARGIN_RIGHT, ih = mainH - MARGIN_TOP;
     const mode = Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
     const maxY = mode === 360 ? 360 : 180;
 
@@ -632,12 +640,12 @@
     const eJD = toJD(document.getElementById('ed').value);
     const totalDays = eJD - sJD;
 
-    const xj = jd => ML + (jd - sJD) / totalDays * iw;
-    const yd = d => MT + ih - (d / maxY) * ih;
-    const sTop = MT + ih + GAP, sBot = sTop + SCORE_H, sMid = (sTop + sBot) / 2;
+    const xj = jd => MARGIN_LEFT + (jd - sJD) / totalDays * iw;
+    const yd = d => MARGIN_TOP + ih - (d / maxY) * ih;
+    const sTop = MARGIN_TOP + ih + GAP, sBot = sTop + SCORE_H, sMid = (sTop + sBot) / 2;
 
     // Render context — shared by all draw functions
-    const rc = { ctx, xj, yd, ML, MR, W, MT, ih, iw };
+    const rc = { ctx, xj, yd, MARGIN_LEFT, MARGIN_RIGHT, W, MARGIN_TOP, ih, iw };
 
     ctx.fillStyle = '#14141e';
     ctx.fillRect(0, 0, W, CH);
@@ -666,7 +674,7 @@
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.6;
     ctx.setLineDash([]);
-    ctx.strokeRect(ML, MT, iw, ih);
+    ctx.strokeRect(MARGIN_LEFT, MARGIN_TOP, iw, ih);
 
     if (pairData.filter(p => p.vis).length) {
       if (!cachedRaw) cachedRaw = calcRawScores(sJD, eJD);
@@ -681,23 +689,28 @@
       ctx.strokeStyle = 'rgba(255,255,100,0.28)';
       ctx.lineWidth = 0.8;
       ctx.setLineDash([2, 4]);
-      ctx.beginPath(); ctx.moveTo(tx, MT); ctx.lineTo(tx, sBot); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tx, MARGIN_TOP); ctx.lineTo(tx, sBot); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = 'rgba(255,255,100,0.35)';
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('HOY', tx, MT + 8);
+      ctx.fillText('HOY', tx, MARGIN_TOP + 8);
     }
 
     ctx.fillStyle = '#2a3a4a';
     ctx.font = '12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('— T–T  - - T–N(natal)', ML + 2, MT + ih - 3);
+    ctx.fillText('— T–T  - - T–N(natal)', MARGIN_LEFT + 2, MARGIN_TOP + ih - 3);
   }
 
   // ─── EVENTS ───
   const cv = document.getElementById('cv');
   const tt = document.getElementById('tt');
+  const vline = document.getElementById('vline');
+
+  cv.addEventListener('mouseenter', () => {
+    vline.style.display = 'block';
+  });
 
   cv.addEventListener('mousemove', e => {
     if (!pairData.length) { tt.style.display = 'none'; return; }
@@ -706,11 +719,14 @@
     const my = e.clientY - r.top;
     const sJD = toJD(document.getElementById('sd').value);
     const eJD = toJD(document.getElementById('ed').value);
-    const iw = CW - ML - MR;
+    const iw = CW - MARGIN_LEFT - MARGIN_RIGHT;
 
-    if (mx < ML || mx > CW - MR) { tt.style.display = 'none'; return; }
+    if (mx < MARGIN_LEFT || mx > CW - MARGIN_RIGHT) { tt.style.display = 'none'; vline.style.display = 'none'; return; }
+    
+    vline.style.display = 'block';
+    vline.style.left = mx + 'px';
 
-    const hJD = sJD + (mx - ML) / iw * (eJD - sJD);
+    const hJD = sJD + (mx - MARGIN_LEFT) / iw * (eJD - sJD);
     const d = new Date((hJD - 2440587.5) * 86400000);
     const p = n => String(n).padStart(2, '0');
     let html = `<div class="tt-date">${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}</div>`;
@@ -741,14 +757,17 @@
     tt.style.top = (my - 8) + 'px';
   });
 
-  cv.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  cv.addEventListener('mouseleave', () => { 
+    tt.style.display = 'none'; 
+    vline.style.display = 'none';
+  });
 
   [['np1', 'np2'], ['tp1', 'tp2']].forEach(([id1, id2]) => {
     const s1 = document.getElementById(id1), s2 = document.getElementById(id2);
     PLANETS.forEach(p => {
       [s1, s2].forEach(s => {
         const o = document.createElement('option');
-        o.value = p;
+        o.value = String(p);
         o.textContent = SYM[p] + ' ' + p;
         s.appendChild(o);
       });
