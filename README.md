@@ -22,7 +22,3 @@ Este proyecto está diseñado para ser servido como un sitio estático. Simpleme
 - **HTML5**: Para la estructura de la aplicación.
 - **CSS3**: Para los estilos y el diseño.
 - **JavaScript (ES6+)**: Para toda la lógica de cálculo y la interactividad.
-
----
-
-*Este README fue generado y mejorado con la ayuda de Gemini.*
