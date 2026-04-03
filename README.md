@@ -1,7 +1,7 @@
 # 🌌 Astro-Cycles Calculator
 
+---
 [**Español**](#-español) | [**English**](#-english)
-
 ---
 
 ## 🇪🇸 Español
