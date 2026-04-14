@@ -171,7 +171,7 @@
         inp.type = 'number';
         inp.className = 'at-score-input';
         inp.value = String(a.score);
-        inp.min = -3; inp.max = 3; inp.step = 0.1;
+        inp.min = "-3"; inp.max = "3"; inp.step = "0.1";
         scoreEl.replaceWith(inp);
         inp.focus();
         inp.select();
