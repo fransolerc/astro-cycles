@@ -139,6 +139,32 @@
     });
   }
 
+  function openScoreInput(aspect, scoreEl) {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'at-score-input';
+    inp.value = String(aspect.score);
+    inp.min = "-3"; inp.max = "3"; inp.step = "0.1";
+    scoreEl.replaceWith(inp);
+    inp.focus();
+    inp.select();
+
+    const commit = () => {
+      const raw = Number.parseFloat(inp.value);
+      aspect.score = Number.isNaN(raw) ? aspect.score : Math.max(-3, Math.min(3, Number.parseFloat(raw.toFixed(1))));
+      invalidateScore();
+      renderAspBar();
+      drawChart();
+    };
+
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter')  inp.blur();
+      if (ev.key === 'Escape') renderAspBar();
+      ev.stopPropagation();
+    });
+  }
+
   function renderAspBar() {
     const bar = document.getElementById('asp-bar');
     bar.innerHTML = '<span class="asp-title">ASPECTOS:</span>';
@@ -164,31 +190,10 @@
         drawChart();
       });
 
-      const scoreEl = el.querySelector('.at-score-val');
-      scoreEl.addEventListener('click', e => {
+      const scoreValueEl = el.querySelector('.at-score-val');
+      scoreValueEl.addEventListener('click', e => {
         e.stopPropagation();
-        const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.className = 'at-score-input';
-        inp.value = String(a.score);
-        inp.min = "-3"; inp.max = "3"; inp.step = "0.1";
-        scoreEl.replaceWith(inp);
-        inp.focus();
-        inp.select();
-
-        const commit = () => {
-          const raw = Number.parseFloat(inp.value);
-          a.score = Number.isNaN(raw) ? a.score : Math.max(-3, Math.min(3, Number.parseFloat(raw.toFixed(1))));
-          invalidateScore();
-          renderAspBar();
-          drawChart();
-        };
-        inp.addEventListener('blur', commit);
-        inp.addEventListener('keydown', ev => {
-          if (ev.key === 'Enter')  inp.blur();
-          if (ev.key === 'Escape') renderAspBar();
-          ev.stopPropagation();
-        });
+        openScoreInput(a, scoreValueEl);
       });
 
       bar.appendChild(el);
