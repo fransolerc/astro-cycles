@@ -682,8 +682,8 @@
       drawScoreChart(rc, scores, { sTop, sMid, sBot }, ticks);
     }
 
-    // Today Line
-    const todayJD = toJD(new Date().toISOString().slice(0, 10));
+    // Today Line - Precise Local Time
+    const todayJD = (new Date().getTime() / 86400000) + 2440587.5;
     if (todayJD >= sJD && todayJD <= eJD) {
       const tx = xj(todayJD);
       ctx.strokeStyle = 'rgba(255,255,100,0.28)';
