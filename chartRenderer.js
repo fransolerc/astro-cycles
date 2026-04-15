@@ -1,4 +1,13 @@
+/**
+ * Handles all canvas-based drawing operations.
+ * @namespace ChartRenderer
+ */
 globalThis.ChartRenderer = {
+  /**
+   * Draw decorative bands on the chart.
+   * @param {Object} rc - Render context.
+   * @param {number} mode - Chart mode (180 or 360).
+   */
   drawBands: (rc, mode) => {
     const { ctx, MARGIN_LEFT, yd, iw } = rc;
     const bands = mode === 360 ? [[0, 60], [120, 180], [240, 300]] : [[0, 60], [120, 180]];
@@ -8,6 +17,11 @@ globalThis.ChartRenderer = {
     });
   },
 
+  /**
+   * Draw the coordinate grid and degree labels.
+   * @param {Object} rc - Render context.
+   * @param {number} mode - Chart mode (180 or 360).
+   */
   drawGrid: (rc, mode) => {
     const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     const gDegs = mode === 360
@@ -31,6 +45,12 @@ globalThis.ChartRenderer = {
     });
   },
 
+  /**
+   * Draw time-based vertical ticks and date labels.
+   * @param {Object} rc - Render context.
+   * @param {number[]} ticks - Array of Julian Days for ticks.
+   * @param {number} sBot - Y coordinate for the bottom of the chart.
+   */
   drawTimeTicks: (rc, ticks, sBot) => {
     const { ctx, xj, MARGIN_TOP } = rc;
     ticks.forEach(jd => {
@@ -45,12 +65,9 @@ globalThis.ChartRenderer = {
       const d = new Date((jd - 2440587.5) * 86400000);
       const yr = d.getUTCFullYear();
       const mo = d.getUTCMonth() + 1;
-      let lbl;
-      if (ticks.length > 1 && (ticks[1] - ticks[0]) < 300) {
-        lbl = `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`;
-      } else {
-        lbl = String(yr);
-      }
+      let lbl = ticks.length > 1 && (ticks[1] - ticks[0]) < 300 
+        ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
+        : String(yr);
 
       ctx.fillStyle = '#2a3a50';
       ctx.font = '12px Inter, system-ui, sans-serif';
@@ -59,6 +76,12 @@ globalThis.ChartRenderer = {
     });
   },
 
+  /**
+   * Draw horizontal dashed lines for enabled astrological aspects.
+   * @param {Object} rc - Render context.
+   * @param {Array} actAsps - Array of active aspect objects.
+   * @param {number} maxY - Maximum Y value (180 or 360).
+   */
   drawAspectLines: (rc, actAsps, maxY) => {
     const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     actAsps.forEach(a => {
@@ -83,7 +106,16 @@ globalThis.ChartRenderer = {
     });
   },
 
-  drawCycles: (rc, pairData, mode, actAsps, maxY) => {
+  /**
+   * Draw the planetary cycle curves and crossing points.
+   * @param {Object} rc - Render context.
+   * @param {Array} pairData - Planet pair data.
+   * @param {number} mode - Chart mode.
+   * @param {Array} actAsps - Active aspects.
+   * @param {number} maxY - Max Y value.
+   * @param {Object} config - Configuration object (SYM).
+   */
+  drawCycles: (rc, pairData, mode, actAsps, maxY, config) => {
     const { ctx, xj, yd, MARGIN_RIGHT, W, MARGIN_TOP, ih } = rc;
     const jt = mode === 360 ? 270 : 90;
     const visible = pairData.filter(p => p.vis && p.pts?.length);
@@ -125,9 +157,7 @@ globalThis.ChartRenderer = {
         if (!prev) {
           ctx.moveTo(x, y);
         } else if (Math.abs(pt.a - prev.a) > jt) {
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(x, y);
+          ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
@@ -144,7 +174,7 @@ globalThis.ChartRenderer = {
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.globalAlpha = 0.65;
-      const lbl = pd.type === 'tn' ? `${globalThis.AstroCfg.SYM[pd.p1]}→${globalThis.AstroCfg.SYM[pd.p2]}n` : `${globalThis.AstroCfg.SYM[pd.p1]}${globalThis.AstroCfg.SYM[pd.p2]}`;
+      const lbl = pd.type === 'tn' ? `${config.SYM[pd.p1]}→${config.SYM[pd.p2]}n` : `${config.SYM[pd.p1]}${config.SYM[pd.p2]}`;
       ctx.fillText(lbl, Math.min(lx, W - MARGIN_RIGHT - 22), ly);
       ctx.globalAlpha = 1;
     });
@@ -172,35 +202,36 @@ globalThis.ChartRenderer = {
     });
   },
 
-  drawScoreChart: (rc, scores, scoreBounds, ticks) => {
+  /**
+   * Draw the harmonic index score chart.
+   * @param {Object} rc - Render context.
+   * @param {Array} scores - Score data points.
+   * @param {Object} scoreBounds - Y boundaries for the score section.
+   * @param {number[]} ticks - Julian Day ticks for vertical grid.
+   * @param {number} scoreHeight - Height of the score section.
+   */
+  drawScoreChart: (rc, scores, scoreBounds, ticks, scoreHeight) => {
     const { ctx, xj, MARGIN_LEFT, W, MARGIN_RIGHT, iw } = rc;
     const { sTop, sMid, sBot } = scoreBounds;
-    const { SCORE_H } = globalThis.AstroCfg;
     if (!scores.length) return;
 
     const maxAbs = Math.max(0.01, scores.reduce((m, s) => Math.max(m, Math.abs(s.v)), 0));
-    const svY = v => sMid - ((v / maxAbs) * (SCORE_H / 2 - 5));
+    const svY = v => sMid - ((v / maxAbs) * (scoreHeight / 2 - 5));
 
     ctx.fillStyle = '#0e0e18';
-    ctx.fillRect(MARGIN_LEFT, sTop, iw, SCORE_H);
+    ctx.fillRect(MARGIN_LEFT, sTop, iw, scoreHeight);
 
     ticks.forEach(jd => {
       const x = xj(jd);
       ctx.strokeStyle = '#161622';
       ctx.lineWidth = 0.3;
-      ctx.beginPath();
-      ctx.moveTo(x, sTop);
-      ctx.lineTo(x, sBot);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, sTop); ctx.lineTo(x, sBot); ctx.stroke();
     });
 
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.6;
     ctx.setLineDash([3, 6]);
-    ctx.beginPath();
-    ctx.moveTo(MARGIN_LEFT, sMid);
-    ctx.lineTo(W - MARGIN_RIGHT, sMid);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(MARGIN_LEFT, sMid); ctx.lineTo(W - MARGIN_RIGHT, sMid); ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#1e3a2a';
@@ -212,29 +243,24 @@ globalThis.ChartRenderer = {
     ctx.fillStyle = '#162414';
     ctx.fillText('ÍNDICE', MARGIN_LEFT - 3, sTop + 18);
 
-    ctx.beginPath();
-    ctx.moveTo(xj(scores[0].jd), sMid);
-    scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.max(0, s.v))));
-    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(52,211,153,0.18)';
-    ctx.fill();
+    const fillPath = (points, filterFn, color) => {
+      ctx.beginPath();
+      ctx.moveTo(xj(points[0].jd), sMid);
+      points.forEach(s => ctx.lineTo(xj(s.jd), svY(filterFn(s.v))));
+      ctx.lineTo(xj(points[points.length - 1].jd), sMid);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    };
 
-    ctx.beginPath();
-    ctx.moveTo(xj(scores[0].jd), sMid);
-    scores.forEach(s => ctx.lineTo(xj(s.jd), svY(Math.min(0, s.v))));
-    ctx.lineTo(xj(scores[scores.length - 1].jd), sMid);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(248,113,113,0.18)';
-    ctx.fill();
+    fillPath(scores, v => Math.max(0, v), 'rgba(52,211,153,0.18)');
+    fillPath(scores, v => Math.min(0, v), 'rgba(248,113,113,0.18)');
 
     ctx.lineWidth = 1.2;
     ctx.globalAlpha = 0.9;
     for (let i = 1; i < scores.length; i++) {
       const vm = (scores[i - 1].v + scores[i].v) / 2;
-      if (vm > 0.08) ctx.strokeStyle = '#34d399';
-      else if (vm < -0.08) ctx.strokeStyle = '#f87171';
-      else ctx.strokeStyle = '#fcd34d';
+      ctx.strokeStyle = vm > 0.08 ? '#34d399' : (vm < -0.08 ? '#f87171' : '#fcd34d');
       ctx.beginPath();
       ctx.moveTo(xj(scores[i - 1].jd), svY(scores[i - 1].v));
       ctx.lineTo(xj(scores[i].jd), svY(scores[i].v));
@@ -243,6 +269,6 @@ globalThis.ChartRenderer = {
     ctx.globalAlpha = 1;
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.5;
-    ctx.strokeRect(MARGIN_LEFT, sTop, iw, SCORE_H);
+    ctx.strokeRect(MARGIN_LEFT, sTop, iw, scoreHeight);
   }
 };
