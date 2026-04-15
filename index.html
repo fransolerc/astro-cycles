@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Calculadora avanzada de ciclos astrológicos, tránsitos planetarios e índice armónico. Visualización interactiva sin dependencias.">
+  <meta name="description" content="Advanced calculator for astrological cycles, planetary transits, and harmonic index. Interactive visualization with no dependencies.">
   <meta name="theme-color" content="#141218">
-  <title>Astro-Cycles · Calculadora de Ciclos Planetarios</title>
+  <title>Astro-Cycles · Planetary Cycles Calculator</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <!-- RANGE BAR -->
 <div class="bar">
-  <label for="sd">DE</label><input type="date" id="sd" value="2026-01-01">
-  <label for="ed">A</label><input type="date" id="ed" value="2030-12-31">
-  <label for="mode-sel">MODO</label>
+  <label for="sd">FROM</label><input type="date" id="sd" value="2026-01-01">
+  <label for="ed">TO</label><input type="date" id="ed" value="2030-12-31">
+  <label for="mode-sel">MODE</label>
   <select id="mode-sel">
     <option value="180" selected>0–180°</option>
     <option value="360">0–360°</option>
   </select>
-  <button class="btn btn-calcular">▶ CALCULAR</button>
+  <button class="btn btn-calcular">▶ CALCULATE</button>
 </div>
 
 <!-- PAIR ADD BAR -->
@@ -27,29 +27,29 @@
   <span class="label-tt">T–T</span>
   <label for="np1">P1</label><select id="np1"></select>
   <label for="np2">P2</label><select id="np2"></select>
-  <button class="btn2">+ TRÁNSITO–TRÁNSITO</button>
-  <button class="btn2 btn-externos">★ 10 EXTERNOS</button>
+  <button class="btn2">+ TRANSIT–TRANSIT</button>
+  <button class="btn2 btn-externos">★ 10 OUTER</button>
   <span class="label-sep">|</span>
   <span class="label-tn">T–N</span>
-  <label for="tp1">TRÁNSITO</label><select id="tp1"></select>
+  <label for="tp1">TRANSIT</label><select id="tp1"></select>
   <label for="tp2">NATAL</label><select id="tp2"></select>
-  <button class="btn3">+ TRÁNSITO–NATAL</button>
+  <button class="btn3">+ TRANSIT–NATAL</button>
 </div>
 
 <!-- NATAL DATA BAR -->
 <div class="natal-bar">
   <span class="natal-title">⬟ NATAL:</span>
-  <label for="nb-date">FECHA</label><input type="date" id="nb-date" value="1980-06-15">
-  <label for="nb-time">HORA</label><input type="time" id="nb-time" value="12:00">
+  <label for="nb-date">DATE</label><input type="date" id="nb-date" value="1980-06-15">
+  <label for="nb-time">TIME</label><input type="time" id="nb-time" value="12:00">
   <label for="nb-lat">LAT</label><input type="number" id="nb-lat" value="40.42" step="0.01" min="-90" max="90">
   <label for="nb-lon">LON</label><input type="number" id="nb-lon" value="-3.70" step="0.01" min="-180" max="180">
-  <button class="btn3">CALCULAR NATAL</button>
-  <div class="natal-tag" id="natal-tag">Sin datos natales calculados</div>
+  <button class="btn3">CALCULATE NATAL</button>
+  <div class="natal-tag" id="natal-tag">No natal data calculated</div>
 </div>
 
 <div class="pairs-bar" id="pairs-bar"></div>
 <div class="canvas-wrap" id="cwrap">
-  <canvas id="cv" tabindex="0" aria-label="Gráfico interactivo de ciclos planetarios e índice armónico"></canvas>
+  <canvas id="cv" tabindex="0" aria-label="Interactive chart of planetary cycles and harmonic index"></canvas>
   <div id="vline" class="vline"></div>
   <div id="tt"></div>
 </div>
@@ -58,14 +58,14 @@
   <label for="orb-sl">ORB</label>
   <input type="range" id="orb-sl" min="1" max="12" value="7" step=".5">
   <span class="bv" id="orb-v">7°</span>
-  <label for="sm-sl">SUAVIZ</label>
+  <label for="sm-sl">SMOOTH</label>
   <input type="range" id="sm-sl" min="1" max="60" value="10" step="1">
   <span class="bv" id="sm-v">10d</span>
-  <span class="legend-pos-label">POS</span><span class="legend-pos-value">Trígono+Sextil</span>
-  <span class="legend-neg-label">NEG</span><span class="legend-neg-value">Cuad+Opo</span>
-  <span class="legend-neu-label">NEU</span><span class="legend-neu-value">Conjunción</span>
+  <span class="legend-pos-label">POS</span><span class="legend-pos-value">Trine+Sextile</span>
+  <span class="legend-neg-label">NEG</span><span class="legend-neg-value">Squa+Opp</span>
+  <span class="legend-neu-label">NEU</span><span class="legend-neu-value">Conjunction</span>
 </div>
-<div class="stat" id="stat">LISTO · VSOP87/MEEUS · TRÁNSITOS + NATAL</div>
+<div class="stat" id="stat">READY · VSOP87/MEEUS · TRANSITS + NATAL</div>
 
 <script src="js/astronomy.js"></script>
 <script src="js/constants.js"></script>

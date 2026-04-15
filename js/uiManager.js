@@ -14,7 +14,7 @@ globalThis.UIManager = {
     const bar = document.getElementById('pairs-bar');
     if (!bar) return;
     
-    bar.innerHTML = '<span class="pairs-title">PARES:</span>';
+    bar.innerHTML = '<span class="pairs-title">PAIRS:</span>';
     pairs.forEach(p => {
       const c = document.createElement('div');
       c.className = `chip ${p.type === 'tn' ? 'natal-chip' : ''} ${p.vis ? '' : 'off'}`;
@@ -45,7 +45,7 @@ globalThis.UIManager = {
     const bar = document.getElementById('asp-bar');
     if (!bar) return;
 
-    bar.innerHTML = '<span class="asp-title">ASPECTOS:</span>';
+    bar.innerHTML = '<span class="asp-title">ASPECTS:</span>';
     aspects.forEach(a => {
       const el = document.createElement('div');
       el.className = `at ${aspEn[a.angle] ? '' : 'off'}`;
@@ -62,7 +62,7 @@ globalThis.UIManager = {
       el.innerHTML =
         `<div class="ald" style="background:${a.col}"></div>` +
         `<span style="color:${a.col}">${a.sym} ${a.angle}°</span>` +
-        `<span class="at-score at-score-val ${scoreClass}" title="Clic para editar score">${scoreSign}${a.score}</span>`;
+        `<span class="at-score at-score-val ${scoreClass}" title="Click to edit score">${scoreSign}${a.score}</span>`;
 
       el.addEventListener('click', () => onToggle(a.angle));
 

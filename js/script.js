@@ -116,15 +116,15 @@
   function validateInputs() {
     const sDate = document.getElementById('sd').value;
     const eDate = document.getElementById('ed').value;
-    if (!sDate || !eDate) { alert('Selecciona fechas de inicio y fin'); return false; }
-    if (new Date(eDate) <= new Date(sDate)) { alert('La fecha de fin debe ser posterior a la de inicio'); return false; }
+    if (!sDate || !eDate) { alert('Select start and end dates'); return false; }
+    if (new Date(eDate) <= new Date(sDate)) { alert('End date must be after start date'); return false; }
     return true;
   }
 
   function calcNatal() {
     const date = document.getElementById('nb-date').value;
     const time = document.getElementById('nb-time').value;
-    if (!date || !time) { alert('Introduce fecha y hora natal'); return; }
+    if (!date || !time) { alert('Enter natal date and time'); return; }
 
     try {
       const natalLons = Calculator.calcNatal(date, time, Astro, Config.PLANETS);
@@ -138,14 +138,14 @@
       setState({ natalLons });
     } catch (e) {
       console.error('Error calculating natal:', e);
-      alert('Error al calcular posiciones natales. Verifica los datos.');
+      alert('Error calculating natal positions. Please check the data.');
     }
   }
 
   function addPairTT(p1 = null, p2 = null) {
     const a = p1 || document.getElementById('np1').value;
     const b = p2 || document.getElementById('np2').value;
-    if (a === b) { alert('Selecciona dos planetas diferentes'); return; }
+    if (a === b) { alert('Select two different planets'); return; }
     if (state.pairs.some(p => p.p1 === a && p.p2 === b && p.type === 'tt')) return;
 
     const col = Config.PAIR_COLORS[state.colorIdx % Config.PAIR_COLORS.length];
@@ -176,7 +176,7 @@
   }
 
   function addPairTN() {
-    if (!state.natalLons) { alert('Primero calcula el natal (botón CALCULAR NATAL)'); return; }
+    if (!state.natalLons) { alert('First calculate the natal (CALCULATE NATAL button)'); return; }
     const a = document.getElementById('tp1').value;
     const b = document.getElementById('tp2').value;
     const key = `${a}-n${b}`;
@@ -196,10 +196,10 @@
 
     const sJD = Astro.toJD(document.getElementById('sd').value);
     const eJD = Astro.toJD(document.getElementById('ed').value);
-    if ((eJD - sJD) / 365.25 > 100) { alert('Máximo 100 años'); return; }
+    if ((eJD - sJD) / 365.25 > 100) { alert('Maximum 100 years'); return; }
 
     const mode = parseInt(document.getElementById('mode-sel').value, 10) || 180;
-    document.getElementById('stat').textContent = 'CALCULANDO...';
+    document.getElementById('stat').textContent = 'CALCULATING...';
 
     setTimeout(() => {
       const pairData = state.pairs.map(p => {
@@ -208,7 +208,7 @@
       });
       
       const tnCount = state.pairs.filter(p => p.type === 'tn').length;
-      document.getElementById('stat').textContent = `${state.pairs.length} PAR(ES) (${tnCount} T→N) · ${mode}° · VSOP87/MEEUS`;
+      document.getElementById('stat').textContent = `${state.pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · VSOP87/MEEUS`;
       
       setState({ pairData });
     }, 10);
@@ -291,7 +291,7 @@
       ctx.fillStyle = 'rgba(255,255,100,0.35)';
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('HOY', tx, Config.MARGIN_TOP + 8);
+      ctx.fillText('TODAY', tx, Config.MARGIN_TOP + 8);
     }
     
     state.CW = currentCW;
@@ -338,7 +338,7 @@
         if (sc.length) {
           const sv = sc.reduce((a, b) => Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a);
           const col = sv.v > 0.08 ? '#34d399' : (sv.v < -0.08 ? '#f87171' : '#fcd34d');
-          html += `<div class="tt-index">Índice: <span style="color:${col}">${sv.v.toFixed(2)}</span></div>`;
+          html += `<div class="tt-index">Index: <span style="color:${col}">${sv.v.toFixed(2)}</span></div>`;
         }
       }
       tt.innerHTML = html;
