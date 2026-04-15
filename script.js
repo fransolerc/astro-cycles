@@ -54,7 +54,14 @@
     state = { ...state, ...newState };
     
     // Auto-invalidate score cache if relevant parts of state changed
-    if ('aspEn' in newState || 'pairs' in newState || 'natalLons' in newState) {
+    const needsInvalidation = [
+      'aspEn', 
+      'pairs', 
+      'pairData', // Fix: pairData change must invalidate score cache
+      'natalLons'
+    ];
+    
+    if (needsInvalidation.some(key => key in newState)) {
       state.cachedRaw = null;
     }
 
@@ -95,11 +102,10 @@
    * @param {number} newScore - The new score value.
    */
   const handleScoreChange = (aspect, newScore) => {
-    // Buscamos el aspecto original en el Config para actualizarlo
     const target = Config.ASPECTS.find(a => a.angle === aspect.angle);
     if (target) {
       target.score = newScore;
-      setState({ aspEn: { ...state.aspEn } }); // Disparamos actualización
+      setState({ aspEn: { ...state.aspEn } });
     }
   };
 
@@ -288,7 +294,6 @@
       ctx.fillText('HOY', tx, Config.MARGIN_TOP + 8);
     }
     
-    // Guardamos el tamaño actual en el estado sin disparar re-render
     state.CW = currentCW;
     state.CH = currentCH;
   }
