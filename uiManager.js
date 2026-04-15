@@ -50,7 +50,13 @@ globalThis.UIManager = {
       const el = document.createElement('div');
       el.className = `at ${aspEn[a.angle] ? '' : 'off'}`;
 
-      const scoreClass = a.score > 0 ? 'at-score-pos' : (a.score < 0 ? 'at-score-neg' : 'at-score-neu');
+      let scoreClass = 'at-score-neu';
+      if (a.score > 0) {
+        scoreClass = 'at-score-pos';
+      } else if (a.score < 0) {
+        scoreClass = 'at-score-neg';
+      }
+
       const scoreSign = a.score > 0 ? '+' : '';
 
       el.innerHTML =

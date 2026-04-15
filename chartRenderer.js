@@ -260,7 +260,12 @@ globalThis.ChartRenderer = {
     ctx.globalAlpha = 0.9;
     for (let i = 1; i < scores.length; i++) {
       const vm = (scores[i - 1].v + scores[i].v) / 2;
-      ctx.strokeStyle = vm > 0.08 ? '#34d399' : (vm < -0.08 ? '#f87171' : '#fcd34d');
+      
+      let strokeStyle = '#fcd34d';
+      if (vm > 0.08) strokeStyle = '#34d399';
+      else if (vm < -0.08) strokeStyle = '#f87171';
+      
+      ctx.strokeStyle = strokeStyle;
       ctx.beginPath();
       ctx.moveTo(xj(scores[i - 1].jd), svY(scores[i - 1].v));
       ctx.lineTo(xj(scores[i].jd), svY(scores[i].v));
