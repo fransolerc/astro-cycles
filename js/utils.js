@@ -43,13 +43,12 @@ globalThis.AstroUtils = {
   /**
    * Smooth an array of data points using a simple moving average.
    * @param {Array<{jd: number, v: number}>} arr - Raw data points.
-   * @param {number} windowDays - Window size for smoothing in days.
+   * @param {number} windowPoints - Window size for smoothing in number of points.
    * @returns {Array<{jd: number, v: number}>} Smoothed data points.
    */
-  smoothArr: (arr, windowDays) => {
+  smoothArr: (arr, windowPoints) => {
     if (!arr?.length) return arr;
-    const step = arr.length > 1 ? arr[1].jd - arr[0].jd : 1;
-    const w = Math.max(1, Math.round(windowDays / step));
+    const w = Math.max(1, windowPoints);
     return arr.map((pt, i) => {
       const lo = Math.max(0, i - w), hi = Math.min(arr.length - 1, i + w);
       let sum = 0, n = 0;

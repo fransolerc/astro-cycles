@@ -281,7 +281,7 @@
         const orb = parseFloat(document.getElementById('orb-sl').value) || 7;
         state.cachedRaw = Calculator.calcRawScores(sJD, eJD, state.pairData, state.aspEn, orb, Astro, Config.ASPECTS);
       }
-      const smoothing = parseInt(document.getElementById('sm-sl').value, 10) || 10;
+      const smoothing = parseInt(document.getElementById('sm-sl').value, 10) || 5;
       const scores = Utils.smoothArr(state.cachedRaw, smoothing);
       Renderer.drawScoreChart(rc, scores, { sTop, sMid, sBot }, ticks, Config.SCORE_H);
     }
@@ -351,7 +351,7 @@
       });
 
       if (state.cachedRaw) {
-        const smoothing = parseInt(document.getElementById('sm-sl').value, 10) || 10;
+        const smoothing = parseInt(document.getElementById('sm-sl').value, 10) || 5;
         const sc = Utils.smoothArr(state.cachedRaw, smoothing);
         if (sc.length) {
           const sv = sc.reduce((a, b) => Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a);
@@ -392,7 +392,7 @@
   });
 
   document.getElementById('sm-sl').addEventListener('input', function() {
-    document.getElementById('sm-v').textContent = this.value + 'd';
+    document.getElementById('sm-v').textContent = this.value + 'pts';
     this.setAttribute('aria-valuenow', this.value);
     drawChart();
   });
@@ -404,3 +404,5 @@
   addPairTT();
   runCalc();
 })();
+
+
