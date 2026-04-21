@@ -386,12 +386,14 @@
 
   document.getElementById('orb-sl').addEventListener('input', function() {
     document.getElementById('orb-v').textContent = this.value + '°';
+    this.setAttribute('aria-valuenow', this.value);
     state.cachedRaw = null;
     drawChart();
   });
 
   document.getElementById('sm-sl').addEventListener('input', function() {
     document.getElementById('sm-v').textContent = this.value + 'd';
+    this.setAttribute('aria-valuenow', this.value);
     drawChart();
   });
 

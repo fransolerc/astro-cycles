@@ -19,7 +19,7 @@
     <option value="180" selected>0–180°</option>
     <option value="360">0–360°</option>
   </select>
-  <button class="btn btn-calcular">▶ CALCULATE</button>
+  <button class="btn btn-calcular">Calculate Cycles</button>
 </div>
 
 <!-- PAIR ADD BAR -->
@@ -27,13 +27,13 @@
   <span class="label-tt">T–T</span>
   <label for="np1">P1</label><select id="np1"></select>
   <label for="np2">P2</label><select id="np2"></select>
-  <button class="btn2">+ TRANSIT–TRANSIT</button>
-  <button class="btn2 btn-externos">★ 10 OUTER</button>
+  <button class="btn2">Add Transit-Transit</button>
+  <button class="btn2 btn-externos">Add 10 Outer</button>
   <span class="label-sep">|</span>
   <span class="label-tn">T–N</span>
   <label for="tp1">TRANSIT</label><select id="tp1"></select>
   <label for="tp2">NATAL</label><select id="tp2"></select>
-  <button class="btn3">+ TRANSIT–NATAL</button>
+  <button class="btn3">Add Transit-Natal</button>
 </div>
 
 <!-- NATAL DATA BAR -->
@@ -43,7 +43,7 @@
   <label for="nb-time">TIME</label><input type="time" id="nb-time" value="12:00">
   <label for="nb-lat">LAT</label><input type="number" id="nb-lat" value="40.42" step="0.01" min="-90" max="90">
   <label for="nb-lon">LON</label><input type="number" id="nb-lon" value="-3.70" step="0.01" min="-180" max="180">
-  <button class="btn3">CALCULATE NATAL</button>
+  <button class="btn3">Calculate Natal</button>
   <div class="natal-tag" id="natal-tag">No natal data calculated</div>
 </div>
 
@@ -56,11 +56,10 @@
 <div class="asp-bar" id="asp-bar"></div>
 <div class="bot">
   <label for="orb-sl">ORB</label>
-  <input type="range" id="orb-sl" min="1" max="12" value="7" step=".5">
+  <input type="range" id="orb-sl" min="1" max="12" value="7" step=".5" aria-label="Orb tolerance in degrees" aria-valuemin="1" aria-valuemax="12" aria-valuenow="7">
   <span class="bv" id="orb-v">7°</span>
   <label for="sm-sl">SMOOTH</label>
-  <input type="range" id="sm-sl" min="1" max="60" value="10" step="1">
-  <span class="bv" id="sm-v">10d</span>
+  <input type="range" id="sm-sl" min="1" max="60" value="10" step="1" aria-label="Smoothing window in days" aria-valuemin="1" aria-valuemax="60" aria-valuenow="10">
   <span class="legend-pos-label">POS</span><span class="legend-pos-value">Trine+Sextile</span>
   <span class="legend-neg-label">NEG</span><span class="legend-neg-value">Squa+Opp</span>
   <span class="legend-neu-label">NEU</span><span class="legend-neu-value">Conjunction</span>

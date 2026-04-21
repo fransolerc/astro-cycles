@@ -16,14 +16,16 @@ globalThis.UIManager = {
     
     bar.innerHTML = '<span class="pairs-title">PAIRS:</span>';
     pairs.forEach(p => {
-      const c = document.createElement('div');
+      const c = document.createElement('button');
       c.className = `chip ${p.type === 'tn' ? 'natal-chip' : ''} ${p.vis ? '' : 'off'}`;
-      
+      c.setAttribute('aria-pressed', p.vis);
+      c.setAttribute('aria-label', `Toggle visibility of ${p.p1}-${p.p2} pair`);
+
       const label = p.type === 'tt'
         ? `${config.SYM[p.p1]}${p.p1}–${config.SYM[p.p2]}${p.p2}`
         : `${config.SYM[p.p1]}${p.p1}<span class="chip-tn-label">-T</span>→${config.SYM[p.p2]}${p.p2}<span class="chip-tn-label">-N</span>`;
       
-      c.innerHTML = `<div class="dot" style="background:${p.col}"></div><span style="color:${p.col}">${label}</span><span class="rx">✕</span>`;
+      c.innerHTML = `<div class="dot" style="background:${p.col}"></div><span style="color:${p.col}">${label}</span><span class="rx" aria-label="Remove pair">✕</span>`;
 
       c.querySelector('.rx').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -47,8 +49,10 @@ globalThis.UIManager = {
 
     bar.innerHTML = '<span class="asp-title">ASPECTS:</span>';
     aspects.forEach(a => {
-      const el = document.createElement('div');
+      const el = document.createElement('button');
       el.className = `at ${aspEn[a.angle] ? '' : 'off'}`;
+      el.setAttribute('aria-pressed', aspEn[a.angle]);
+      el.setAttribute('aria-label', `Toggle ${a.name} aspect`);
 
       let scoreClass = 'at-score-neu';
       if (a.score > 0) {
