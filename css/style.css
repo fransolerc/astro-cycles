@@ -267,6 +267,8 @@ canvas { display: block; }
 }
 .at {
   align-items: center;
+  background: transparent;
+  border: none;
   border-radius: var(--r-lg);
   cursor: pointer;
   display: flex;
