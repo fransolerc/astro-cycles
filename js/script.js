@@ -337,7 +337,7 @@
         const sc = Utils.smoothArr(state.cachedRaw, smoothing);
         if (sc.length) {
           const sv = sc.reduce((a, b) => Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a);
-          const col = sv.v > 0.08 ? '#34d399' : (sv.v < -0.08 ? '#f87171' : '#fcd34d');
+          const col = sv.v > Config.SCORE_THRESHOLD_POS ? '#34d399' : (sv.v < Config.SCORE_THRESHOLD_NEG ? '#f87171' : '#fcd34d');
           html += `<div class="tt-index">Index: <span style="color:${col}">${sv.v.toFixed(2)}</span></div>`;
         }
       }

@@ -25,8 +25,9 @@ const Astro = {
   },
 
   kepler: (M, e) => {
+    const Config = globalThis.AstroCfg;
     let E = M;
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < Config.KEPLER_MAX_ITERATIONS; i++) {
       const dE = (M - E + e * Math.sin(E)) / (1 - e * Math.cos(E));
       E += dE;
       if (Math.abs(dE) < 1e-10) break;
