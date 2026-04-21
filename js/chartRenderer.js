@@ -181,7 +181,7 @@ globalThis.ChartRenderer = {
 
     placed.forEach(c => {
       ctx.beginPath();
-      ctx.arc(c.x, c.y, c.isNatal ? 2 : 2.5, 0, Math.PI * 2);
+      ctx.arc(c.x, c.y, c.isNatal ? Config.CIRCLE_RADIUS_NATAL : Config.CIRCLE_RADIUS_TRANSIT, 0, Math.PI * 2);
       ctx.fillStyle = c.col;
       ctx.globalAlpha = 0.85;
       ctx.fill();

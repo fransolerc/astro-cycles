@@ -2,6 +2,7 @@
  * Utility functions for astronomical and chart calculations.
  * @namespace AstroUtils
  */
+const Config = globalThis.AstroCfg;
 globalThis.AstroUtils = {
   /**
    * Format a Julian Day number into a short date string (DD/MM/YY).
@@ -67,7 +68,7 @@ globalThis.AstroUtils = {
     candidates.forEach(c => {
       let row = 0, ok = false;
       while (!ok) {
-        ok = !placed.some(p => p.row === row && Math.abs(p.x - c.x) < 34);
+        ok = !placed.some(p => p.row === row && Math.abs(p.x - c.x) < Config.LABEL_MIN_DISTANCE);
         if (!ok) row++;
         if (row > 5) break;
       }
