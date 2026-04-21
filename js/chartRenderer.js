@@ -144,62 +144,69 @@ globalThis.ChartRenderer = {
     const cands = visible.flatMap(pd => detectCrossings(pd, actAsps, pd.pts, maxY, jt, rc));
     const placed = globalThis.AstroUtils.placeLabels(cands);
 
-    visible.forEach(pd => {
-      ctx.strokeStyle = pd.col;
-      ctx.lineWidth = pd.type === 'tn' ? 1 : 1.1;
-      ctx.globalAlpha = pd.type === 'tn' ? 0.75 : 0.85;
-      ctx.setLineDash(pd.type === 'tn' ? [4, 3] : []);
+    const drawCycleLines = (visible, ctx, xj, yd, jt, MARGIN_TOP, ih, W, MARGIN_RIGHT, config) => {
+      visible.forEach(pd => {
+        ctx.strokeStyle = pd.col;
+        ctx.lineWidth = pd.type === 'tn' ? 1 : 1.1;
+        ctx.globalAlpha = pd.type === 'tn' ? 0.75 : 0.85;
+        ctx.setLineDash(pd.type === 'tn' ? [4, 3] : []);
 
-      ctx.beginPath();
-      let prev = null;
-      pd.pts.forEach(pt => {
-        const x = xj(pt.jd), y = yd(pt.a);
-        if (!prev) {
-          ctx.moveTo(x, y);
-        } else if (Math.abs(pt.a - prev.a) > jt) {
-          ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-        prev = pt;
-      });
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-
-      const last = pd.pts[pd.pts.length - 1];
-      const lx = xj(last.jd) + 4;
-      const ly = Math.max(MARGIN_TOP + 5, Math.min(yd(last.a), MARGIN_TOP + ih - 2));
-      ctx.fillStyle = pd.col;
-      ctx.font = '12px Inter, system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.globalAlpha = 0.65;
-      const lbl = pd.type === 'tn' ? `${config.SYM[pd.p1]}→${config.SYM[pd.p2]}n` : `${config.SYM[pd.p1]}${config.SYM[pd.p2]}`;
-      ctx.fillText(lbl, Math.min(lx, W - MARGIN_RIGHT - 22), ly);
-      ctx.globalAlpha = 1;
-    });
-
-    placed.forEach(c => {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, c.isNatal ? Config.CIRCLE_RADIUS_NATAL : Config.CIRCLE_RADIUS_TRANSIT, 0, Math.PI * 2);
-      ctx.fillStyle = c.col;
-      ctx.globalAlpha = 0.85;
-      ctx.fill();
-      ctx.strokeStyle = '#14141e';
-      ctx.lineWidth = 0.7;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-
-      const ly = c.y - 8 - (c.row * 13);
-      if (ly > MARGIN_TOP) {
-        ctx.fillStyle = c.col;
-        ctx.font = '12px Inter, system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.globalAlpha = 0.7;
-        ctx.fillText(c.date, c.x, ly);
+        ctx.beginPath();
+        let prev = null;
+        pd.pts.forEach(pt => {
+          const x = xj(pt.jd), y = yd(pt.a);
+          if (!prev) {
+            ctx.moveTo(x, y);
+          } else if (Math.abs(pt.a - prev.a) > jt) {
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          prev = pt;
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
         ctx.globalAlpha = 1;
-      }
-    });
+
+        const last = pd.pts[pd.pts.length - 1];
+        const lx = xj(last.jd) + 4;
+        const ly = Math.max(MARGIN_TOP + 5, Math.min(yd(last.a), MARGIN_TOP + ih - 2));
+        ctx.fillStyle = pd.col;
+        ctx.font = '12px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.globalAlpha = 0.65;
+        const lbl = pd.type === 'tn' ? `${config.SYM[pd.p1]}→${config.SYM[pd.p2]}n` : `${config.SYM[pd.p1]}${config.SYM[pd.p2]}`;
+        ctx.fillText(lbl, Math.min(lx, W - MARGIN_RIGHT - 22), ly);
+        ctx.globalAlpha = 1;
+      });
+    };
+
+    const drawCycleLabels = (placed, ctx, MARGIN_TOP) => {
+      placed.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.isNatal ? globalThis.AstroCfg.CIRCLE_RADIUS_NATAL : globalThis.AstroCfg.CIRCLE_RADIUS_TRANSIT, 0, Math.PI * 2);
+        ctx.fillStyle = c.col;
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.strokeStyle = '#14141e';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        const ly = c.y - 8 - (c.row * 13);
+        if (ly > MARGIN_TOP) {
+          ctx.fillStyle = c.col;
+          ctx.font = '12px Inter, system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.globalAlpha = 0.7;
+          ctx.fillText(c.date, c.x, ly);
+          ctx.globalAlpha = 1;
+        }
+      });
+    };
+
+    drawCycleLines(visible, ctx, xj, yd, jt, MARGIN_TOP, ih, W, MARGIN_RIGHT, config);
+    drawCycleLabels(placed, ctx, MARGIN_TOP);
   },
 
   /**

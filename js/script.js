@@ -214,10 +214,10 @@
     }, 10);
   }
 
-  function drawChart() {
+  function setupCanvas() {
     const cv = document.getElementById('cv');
     const wrap = document.getElementById('cwrap');
-    if (!cv || !wrap) return;
+    if (!cv || !wrap) return null;
 
     const currentCW = wrap.clientWidth || 700;
     const mainH = Math.max(260, Math.min(460, Math.round(currentCW * 0.44)));
@@ -246,8 +246,15 @@
 
     const rc = { ctx, xj, yd, MARGIN_LEFT: Config.MARGIN_LEFT, MARGIN_RIGHT: Config.MARGIN_RIGHT, W, MARGIN_TOP: Config.MARGIN_TOP, ih, iw };
 
+    return { rc, sJD, eJD, totalDays, mode, maxY, sTop, sMid, sBot, currentCW, currentCH };
+  }
+
+  function drawChartElements(rc, sJD, eJD, totalDays, mode, maxY, sTop, sMid, sBot) {
+    const { ctx } = rc;
+    const W = rc.W, iw = rc.iw;
+
     ctx.fillStyle = '#14141e';
-    ctx.fillRect(0, 0, W, currentCH);
+    ctx.fillRect(0, 0, W, rc.MARGIN_TOP + rc.ih + Config.GAP + Config.SCORE_H + Config.MARGIN_BOTTOM);
 
     Renderer.drawBands(rc, mode);
     Renderer.drawGrid(rc, mode);
@@ -267,7 +274,7 @@
 
     ctx.strokeStyle = '#1e2e3e';
     ctx.lineWidth = 0.6;
-    ctx.strokeRect(Config.MARGIN_LEFT, Config.MARGIN_TOP, iw, ih);
+    ctx.strokeRect(Config.MARGIN_LEFT, Config.MARGIN_TOP, iw, rc.ih);
 
     if (state.pairData.filter(p => p.vis).length) {
       if (!state.cachedRaw) {
@@ -278,8 +285,10 @@
       const scores = Utils.smoothArr(state.cachedRaw, smoothing);
       Renderer.drawScoreChart(rc, scores, { sTop, sMid, sBot }, ticks, Config.SCORE_H);
     }
+  }
 
-    // Today Line
+  function drawTodayLine(rc, sJD, eJD, sBot) {
+    const { ctx, xj } = rc;
     const todayJD = (Date.now() / 86400000) + 2440587.5;
     if (todayJD >= sJD && todayJD <= eJD) {
       const tx = xj(todayJD);
@@ -293,7 +302,16 @@
       ctx.textAlign = 'center';
       ctx.fillText('TODAY', tx, Config.MARGIN_TOP + 8);
     }
-    
+  }
+
+  function drawChart() {
+    const canvasData = setupCanvas();
+    if (!canvasData) return;
+    const { rc, sJD, eJD, totalDays, mode, maxY, sTop, sMid, sBot, currentCW, currentCH } = canvasData;
+
+    drawChartElements(rc, sJD, eJD, totalDays, mode, maxY, sTop, sMid, sBot);
+    drawTodayLine(rc, sJD, eJD, sBot);
+
     state.CW = currentCW;
     state.CH = currentCH;
   }
