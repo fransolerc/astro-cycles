@@ -1,0 +1,14 @@
+{
+  "name": "astro-cycles",
+  "version": "1.0.0",
+  "description": "Astronomical cycles calculator and visualizer",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^22.0.0"
+  }
+}
