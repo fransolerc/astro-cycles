@@ -6,7 +6,7 @@ globalThis.UIManager = {
   /**
    * Renders the chips for active planet pairs.
    * @param {Array} pairs - Array of pair objects.
-   * @param {Object} config - Configuration (SYM).
+   * @param {Object} config - Configuration (SYM, TEXTS).
    * @param {Function} onRemove - Callback for removing a pair.
    * @param {Function} onToggle - Callback for toggling pair visibility.
    */
@@ -14,18 +14,18 @@ globalThis.UIManager = {
     const bar = document.getElementById('pairs-bar');
     if (!bar) return;
     
-    bar.innerHTML = '<span class="pairs-title">PAIRS:</span>';
+    bar.innerHTML = `<span class="pairs-title">${config.TEXTS.PAIRS}</span>`;
     pairs.forEach(p => {
       const c = document.createElement('button');
       c.className = `chip ${p.type === 'tn' ? 'natal-chip' : ''} ${p.vis ? '' : 'off'}`;
       c.setAttribute('aria-pressed', p.vis);
-      c.setAttribute('aria-label', `Toggle visibility of ${p.p1}-${p.p2} pair`);
+      c.setAttribute('aria-label', `${config.TEXTS.ARIA_TOGGLE_PAIR}${p.p1}-${p.p2} pair`);
 
       const label = p.type === 'tt'
         ? `${config.SYM[p.p1]}${p.p1}–${config.SYM[p.p2]}${p.p2}`
         : `${config.SYM[p.p1]}${p.p1}<span class="chip-tn-label">-T</span>→${config.SYM[p.p2]}${p.p2}<span class="chip-tn-label">-N</span>`;
       
-      c.innerHTML = `<div class="dot" style="background:${p.col}"></div><span style="color:${p.col}">${label}</span><span class="rx" aria-label="Remove pair">✕</span>`;
+      c.innerHTML = `<div class="dot" style="background:${p.col}"></div><span style="color:${p.col}">${label}</span><span class="rx" aria-label="${config.TEXTS.ARIA_REMOVE_PAIR}">✕</span>`;
 
       c.querySelector('.rx').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -39,20 +39,20 @@ globalThis.UIManager = {
   /**
    * Renders the aspect bar with scores.
    * @param {Object} aspEn - Enabled state of each aspect.
-   * @param {Array} aspects - Aspect definitions.
+   * @param {Object} config - Configuration (ASPECTS, TEXTS).
    * @param {Function} onToggle - Callback for toggling an aspect.
    * @param {Function} onScoreChange - Callback for changing an aspect's score.
    */
-  renderAspBar: (aspEn, aspects, onToggle, onScoreChange) => {
+  renderAspBar: (aspEn, config, onToggle, onScoreChange) => {
     const bar = document.getElementById('asp-bar');
     if (!bar) return;
 
-    bar.innerHTML = '<span class="asp-title">ASPECTS:</span>';
-    aspects.forEach(a => {
+    bar.innerHTML = `<span class="asp-title">${config.TEXTS.ASPECTS}</span>`;
+    config.ASPECTS.forEach(a => {
       const el = document.createElement('button');
       el.className = `at ${aspEn[a.angle] ? '' : 'off'}`;
       el.setAttribute('aria-pressed', aspEn[a.angle]);
-      el.setAttribute('aria-label', `Toggle ${a.name} aspect`);
+      el.setAttribute('aria-label', `${config.TEXTS.ARIA_TOGGLE_ASPECT}${a.name} aspect`);
 
       let scoreClass = 'at-score-neu';
       if (a.score > 0) {
@@ -66,7 +66,7 @@ globalThis.UIManager = {
       el.innerHTML =
         `<div class="ald" style="background:${a.col}"></div>` +
         `<span style="color:${a.col}">${a.sym} ${a.angle}°</span>` +
-        `<span class="at-score at-score-val ${scoreClass}" title="Click to edit score">${scoreSign}${a.score}</span>`;
+        `<span class="at-score at-score-val ${scoreClass}" title="${config.TEXTS.TITLE_EDIT_SCORE}">${scoreSign}${a.score}</span>`;
 
       el.addEventListener('click', () => onToggle(a.angle));
 
@@ -74,7 +74,7 @@ globalThis.UIManager = {
       scoreValueEl.addEventListener('click', e => {
         e.stopPropagation();
         globalThis.UIManager.openScoreInput(a, scoreValueEl, onScoreChange, () => 
-          globalThis.UIManager.renderAspBar(aspEn, aspects, onToggle, onScoreChange)
+          globalThis.UIManager.renderAspBar(aspEn, config, onToggle, onScoreChange)
         );
       });
 
