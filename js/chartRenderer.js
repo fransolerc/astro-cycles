@@ -248,7 +248,7 @@ globalThis.ChartRenderer = {
     ctx.fillText('0', MARGIN_LEFT - 3, sMid + 3);
     ctx.fillText('–', MARGIN_LEFT - 3, sBot - 2);
     ctx.fillStyle = '#162414';
-    ctx.fillText('ÍNDICE', MARGIN_LEFT - 3, sTop + 18);
+    ctx.fillText('INDEX', MARGIN_LEFT - 3, sTop + 18);
 
     const fillPath = (points, filterFn, color) => {
       ctx.beginPath();
