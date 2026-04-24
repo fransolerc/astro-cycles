@@ -81,9 +81,11 @@
 
     cv.addEventListener('mousemove', e => {
       const state = stateManager.getState();
+      const CW = stateManager.CW || state.CW; // Use live width from instance if available
 
       if (!state.pairData.length) {
         tt.style.display = 'none';
+        vline.style.display = 'none';
         return;
       }
 
@@ -93,9 +95,9 @@
 
       const sJD = globalThis.Astro.toJD(document.getElementById('sd').value);
       const eJD = globalThis.Astro.toJD(document.getElementById('ed').value);
-      const iw = state.CW - Config.MARGIN_LEFT - Config.MARGIN_RIGHT;
+      const iw = CW - Config.MARGIN_LEFT - Config.MARGIN_RIGHT;
 
-      if (mx < Config.MARGIN_LEFT || mx > state.CW - Config.MARGIN_RIGHT) {
+      if (mx < Config.MARGIN_LEFT || mx > CW - Config.MARGIN_RIGHT) {
         tt.style.display = 'none';
         vline.style.display = 'none';
         return;
@@ -213,4 +215,3 @@
   Handlers.addPairTT('Jupiter', 'Saturn', stateManager);
   Handlers.runCalc(stateManager);
 })();
-
