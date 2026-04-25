@@ -43,5 +43,10 @@ globalThis.AstroCfg = {
   KEPLER_MAX_ITERATIONS: 50,
   LABEL_MIN_DISTANCE: 34,
   CIRCLE_RADIUS_NATAL: 2,
-  CIRCLE_RADIUS_TRANSIT: 2.5
+  CIRCLE_RADIUS_TRANSIT: 2.5,
+  // Sign timeline
+  TIMELINE_ROW_H: 15,
+  // One color per astrological element in order Fire/Earth/Air/Water (sign % 4)
+  SIGN_ELEMENT_COLORS: ['#6b1f1f', '#2a5225', '#1a3f6b', '#1f1f5a'],
+  SIGN_NAMES: ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis']
 };
