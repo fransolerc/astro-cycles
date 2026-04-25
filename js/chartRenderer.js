@@ -227,7 +227,7 @@ globalThis.ChartRenderer = {
   drawSignTimeline: (rc, planets, sJD, eJD, tTop, config, Astro, Utils) => {
     if (!planets.length) return;
 
-    const { ctx, xj, MARGIN_LEFT, MARGIN_RIGHT, W, iw } = rc;
+    const { ctx, xj, MARGIN_LEFT, iw } = rc;
     const rowH   = config.TIMELINE_ROW_H;
     const elCols = config.SIGN_ELEMENT_COLORS; // indexed by sign % 4
 
@@ -277,11 +277,9 @@ globalThis.ChartRenderer = {
         const w  = x2 - x1;
         if (w <= 0) return;
 
-        const elemCol = elCols[seg.sign % 4];
-
         // Band fill
-        ctx.fillStyle = elemCol;
-        ctx.globalAlpha = 0.70;
+        ctx.fillStyle = elCols[seg.sign % 4];
+        ctx.globalAlpha = 0.7;
         ctx.fillRect(x1, y + 1, w, rowH - 2);
 
         // Subtle border between segments
@@ -292,7 +290,7 @@ globalThis.ChartRenderer = {
 
         // Sign glyph — only render when the band is wide enough
         if (w >= 14) {
-          ctx.globalAlpha = 0.90;
+          ctx.globalAlpha = 0.9;
           ctx.fillStyle = '#d0d8f0';
           ctx.font = `${rowH <= 14 ? 10 : 11}px system-ui, sans-serif`;
           ctx.textAlign = 'center';

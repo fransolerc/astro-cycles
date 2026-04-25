@@ -80,28 +80,31 @@
 
     cv.addEventListener('mousemove', e => {
       const state = stateManager.getState();
-
-      if (!state.pairData.length) {
-        tt.style.display = 'none';
-        return;
-      }
-
       const r  = cv.getBoundingClientRect();
       const mx = e.clientX - r.left;
       const my = e.clientY - r.top;
+      const canvasWidth = r.width;
 
-      const sJD = globalThis.Astro.toJD(document.getElementById('sd').value);
-      const eJD = globalThis.Astro.toJD(document.getElementById('ed').value);
-      const iw  = state.CW - Config.MARGIN_LEFT - Config.MARGIN_RIGHT;
-
-      if (mx < Config.MARGIN_LEFT || mx > state.CW - Config.MARGIN_RIGHT) {
+      // Always check bounds and show/hide vline accordingly
+      if (mx < Config.MARGIN_LEFT || mx > canvasWidth - Config.MARGIN_RIGHT) {
         tt.style.display   = 'none';
         vline.style.display = 'none';
         return;
       }
 
+      // Show vline regardless of pairData
       vline.style.display = 'block';
       vline.style.left    = mx + 'px';
+
+      // Only show tooltip if there's pairData
+      if (!state.pairData.length) {
+        tt.style.display = 'none';
+        return;
+      }
+
+      const sJD = globalThis.Astro.toJD(document.getElementById('sd').value);
+      const eJD = globalThis.Astro.toJD(document.getElementById('ed').value);
+      const iw  = canvasWidth - Config.MARGIN_LEFT - Config.MARGIN_RIGHT;
 
       const hJD    = sJD + (mx - Config.MARGIN_LEFT) / iw * (eJD - sJD);
       const d      = new Date((hJD - 2440587.5) * 86400000);
