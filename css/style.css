@@ -213,8 +213,8 @@ input[type=number] { width: 64px; }
 .chip-tn-label { color: var(--md-sys-color-primary); font-size: 10px; opacity: .7; }
 
 /* ── Canvas ── */
-.canvas-wrap { position: relative; }
-canvas { display: block; }
+.canvas-wrap { position: relative; width: 100%; overflow-x: auto; }
+canvas { display: block; max-width: 100%; }
 
 .vline {
   position: absolute;
@@ -339,4 +339,64 @@ canvas { display: block; }
   font-size: 10px;
   letter-spacing: .05em;
   padding: 3px 14px;
+}
+
+/* ── Mobile Optimizations ── */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .bar, .bar-pairs, .natal-bar, .pairs-bar, .asp-bar, .bot {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .bar label, .natal-bar label, .bot label {
+    font-size: 11px;
+  }
+  input, select {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  input[type=number] { width: 70px; }
+  .btn, .btn2, .btn3 {
+    font-size: 13px;
+    padding: 8px 16px;
+    min-height: 36px;
+  }
+  .chip {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+  .at {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  .bot input[type=range] { width: 100px; }
+  .canvas-wrap { overflow-x: auto; }
+  canvas { min-width: 600px; } /* Ensure minimum width for readability */
+}
+
+@media (max-width: 480px) {
+  .bar, .bar-pairs, .natal-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bar label, .natal-bar label {
+    align-self: flex-start;
+    margin-bottom: 4px;
+  }
+  input, select {
+    width: 100%;
+  }
+  .btn, .btn2, .btn3 {
+    width: 100%;
+    justify-content: center;
+  }
+  .pairs-bar, .asp-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bot {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bot input[type=range] { width: 100%; }
 }

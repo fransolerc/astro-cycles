@@ -160,6 +160,96 @@
       tt.style.display    = 'none';
       vline.style.display = 'none';
     });
+
+    // Touch support for mobile - Removed e.preventDefault() to allow page scroll
+    cv.addEventListener('touchstart', e => {
+      vline.style.display = 'block';
+    }, { passive: true });
+
+    cv.addEventListener('touchmove', e => {
+      const state = stateManager.getState();
+      const r  = cv.getBoundingClientRect();
+      const touch = e.touches[0];
+      const mx = touch.clientX - r.left;
+      const my = touch.clientY - r.top;
+      const canvasWidth = r.width;
+
+      // Always check bounds and show/hide vline accordingly
+      if (mx < Config.MARGIN_LEFT || mx > canvasWidth - Config.MARGIN_RIGHT) {
+        tt.style.display   = 'none';
+        vline.style.display = 'none';
+        return;
+      }
+
+      // Show vline regardless of pairData
+      vline.style.display = 'block';
+      vline.style.left    = mx + 'px';
+
+      // Only show tooltip if there's pairData
+      if (!state.pairData.length) {
+        tt.style.display = 'none';
+        return;
+      }
+
+      const sJD = globalThis.Astro.toJD(document.getElementById('sd').value);
+      const eJD = globalThis.Astro.toJD(document.getElementById('ed').value);
+      const iw  = canvasWidth - Config.MARGIN_LEFT - Config.MARGIN_RIGHT;
+
+      const hJD    = sJD + (mx - Config.MARGIN_LEFT) / iw * (eJD - sJD);
+      const d      = new Date((hJD - 2440587.5) * 86400000);
+      const padZero = n => String(n).padStart(2, '0');
+      let html = `<div class="tt-date">${padZero(d.getUTCDate())}/${padZero(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}</div>`;
+
+      // Pair angle lines
+      state.pairData.filter(p => p.vis).forEach(pd => {
+        if (!pd.pts?.length) return;
+        const closestPoint = pd.pts.reduce((a, b) =>
+          Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a
+        );
+        const tag = pd.type === 'tn' ? '<span class="tt-tn">T→N</span> ' : '';
+        html += `<div>${tag}<span style="color:${pd.col}">${Config.SYM[pd.p1]}${pd.p1}–${Config.SYM[pd.p2]}${pd.p2}${pd.type === 'tn' ? '(n)' : ''}</span> <span class="tt-angle">${closestPoint.a.toFixed(1)}°</span></div>`;
+      });
+
+      // Sign tooltip for timeline planets
+      const tlPlanets = CanvasMgr._timelinePlanets(state.pairData, Config.PLANETS);
+      if (tlPlanets.length) {
+        const T = (hJD - 2451545) / 36525;
+        html += '<div class="tt-index" style="margin-top:2px;padding-top:2px">';
+        tlPlanets.forEach(pl => {
+          const lon  = globalThis.Astro.getLon(pl, T);
+          const sign = Math.floor(globalThis.Astro.n360(lon) / 30);
+          const deg  = Math.floor(globalThis.Astro.n360(lon) % 30);
+          html += `<span style="margin-right:8px">${Config.SYM[pl]}<span style="color:#9090c0">${Config.SIGNS[sign]}${deg}°</span></span>`;
+        });
+        html += '</div>';
+      }
+
+      // Index score
+      if (state.cachedRaw) {
+        const smoothing    = parseInt(document.getElementById('sm-sl').value, 10) || 5;
+        const scores       = Utils.smoothArr(state.cachedRaw, smoothing);
+        if (scores.length) {
+          const closestScore = scores.reduce((a, b) =>
+            Math.abs(b.jd - hJD) < Math.abs(a.jd - hJD) ? b : a
+          );
+          const col = closestScore.v > Config.SCORE_THRESHOLD_POS
+            ? '#34d399'
+            : (closestScore.v < Config.SCORE_THRESHOLD_NEG ? '#f87171' : '#fcd34d');
+          html += `<div class="tt-index">Index: <span style="color:${col}">${closestScore.v.toFixed(2)}</span></div>`;
+        }
+      }
+
+      tt.innerHTML       = html;
+      tt.style.display   = 'block';
+      // Offset tooltip more on touch to avoid finger coverage
+      tt.style.left      = (mx + 20) + 'px';
+      tt.style.top       = (my - 40) + 'px';
+    }, { passive: true });
+
+    cv.addEventListener('touchend', () => {
+      tt.style.display    = 'none';
+      vline.style.display = 'none';
+    }, { passive: true });
   }
 
   // --- EVENT LISTENERS ---

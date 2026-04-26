@@ -49,7 +49,12 @@ globalThis.CanvasManager = {
       ? timelinePlanets.length * Config.TIMELINE_ROW_H + Config.GAP
       : 0;
 
-    const currentCW = wrap.clientWidth || 700;
+    // Use wrap width but ensure a minimum for mobile readability and to match CSS
+    let currentCW = wrap.clientWidth || 700;
+    if (window.innerWidth < 768) {
+      currentCW = Math.max(currentCW, 600);
+    }
+
     const mainH     = Math.max(260, Math.min(460, Math.round(currentCW * 0.44)));
     const currentCH = mainH + Config.GAP + timelineH + Config.SCORE_H + Config.MARGIN_BOTTOM;
 
