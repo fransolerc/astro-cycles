@@ -69,7 +69,7 @@ globalThis.ChartRenderer = {
         ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
         : String(yr);
 
-      ctx.fillStyle = '#2a3a50';
+      ctx.fillStyle = '#8090a8';
       ctx.font = '12px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(lbl, x, sBot + 11);
