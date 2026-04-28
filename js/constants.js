@@ -1,3 +1,47 @@
+/**
+ * @file Configuration Constants
+ * Defines astrological settings, UI constraints, and thematic colors.
+ */
+
+/**
+ * @typedef {Object} Aspect
+ * @property {number} angle - The angle in degrees (0, 90, 180, etc.).
+ * @property {string} name - Short display name.
+ * @property {string} sym - Astrological symbol glyph.
+ * @property {string} col - Hex color for rendering.
+ * @property {boolean} en - Default enabled state.
+ * @property {number} score - Harmonic index contribution value.
+ * @property {number} w - Visual weight for line drawing.
+ */
+
+/**
+ * @typedef {Object} AstroConfig
+ * @property {string[]} SIGNS - Zodiac sign symbols.
+ * @property {string[]} PLANETS - List of supported planet names.
+ * @property {Record<string, string>} SYM - Mapping of planet names to symbols.
+ * @property {string[]} EXTERNOS - List of outer planets.
+ * @property {string[]} PAIR_COLORS - Colors for transit-transit cycles.
+ * @property {string[]} NATAL_COLORS - Colors for transit-natal cycles.
+ * @property {Aspect[]} ASPECTS - List of astrological aspects.
+ * @property {Record<string, string>} TEXTS - UI string constants for localization/accessibility.
+ * @property {number} MARGIN_LEFT
+ * @property {number} MARGIN_RIGHT
+ * @property {number} MARGIN_TOP
+ * @property {number} MARGIN_BOTTOM
+ * @property {number} SCORE_H - Height of the harmonic index section.
+ * @property {number} GAP - Vertical gap between sections.
+ * @property {number} SCORE_THRESHOLD_POS - Threshold for positive harmonic index.
+ * @property {number} SCORE_THRESHOLD_NEG - Threshold for negative harmonic index.
+ * @property {number} KEPLER_MAX_ITERATIONS - Accuracy for orbital calculations.
+ * @property {number} LABEL_MIN_DISTANCE - Minimum distance between chart labels.
+ * @property {number} CIRCLE_RADIUS_NATAL
+ * @property {number} CIRCLE_RADIUS_TRANSIT
+ * @property {number} TIMELINE_ROW_H - Height of each row in the sign timeline.
+ * @property {string[]} SIGN_ELEMENT_COLORS - Colors for Fire, Earth, Air, Water.
+ * @property {string[]} SIGN_NAMES - Abbreviated sign names.
+ */
+
+/** @type {AstroConfig} */
 globalThis.AstroCfg = {
   SIGNS: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'],
   PLANETS: ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'],
