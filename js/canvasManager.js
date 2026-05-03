@@ -203,12 +203,13 @@ globalThis.CanvasManager = {
         const orb        = Number.parseFloat(document.getElementById('orb-sl').value) || Config.SCORE_THRESHOLD_POS;
         const Calculator = globalThis.AstroCalculator;
         const Astro      = globalThis.Astro;
-        currentState.cachedRaw = Calculator.calcRawScores(
+        const calculatedRaw = Calculator.calcRawScores(
           sJD, eJD, currentState.pairData, currentState.aspEn, orb, Astro, Config.ASPECTS
         );
+        stateManager.setState({ cachedRaw: calculatedRaw });
       }
       const smoothing = Number.parseInt(document.getElementById('sm-sl').value, 10) || 5;
-      const scores    = Utils.smoothArr(currentState.cachedRaw, smoothing);
+      const scores    = Utils.smoothArr(stateManager.getState().cachedRaw, smoothing);
       Renderer.drawScoreChart(rc, scores, { sTop, sMid, sBot }, ticks, Config.SCORE_H);
     }
   },
