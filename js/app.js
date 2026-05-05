@@ -268,6 +268,18 @@
 
   // --- INITIALIZATION ---
 
+  // Onboarding panel
+  const obPanel = document.getElementById('ob-panel');
+  const obDismiss = document.getElementById('ob-dismiss');
+  if (obPanel) {
+    if (localStorage.getItem('ob-dismissed')) {
+      obPanel.classList.add('ob-hidden');
+    }
+    obDismiss.addEventListener('click', () => {
+      obPanel.classList.add('ob-hidden');
+      localStorage.setItem('ob-dismissed', '1');
+    });
+  }
   renderApp();
   Handlers.addPairTT('Jupiter', 'Saturn', stateManager);
   Handlers.runCalc(stateManager);

@@ -10,6 +10,24 @@
 </head>
 <body>
 
+<!-- ONBOARDING -->
+<div class="ob-wrap" id="ob-panel">
+  <div class="ob-body">
+    <div class="ob-title">⬟ Astro-Cycles — Getting Started</div>
+    <div class="ob-desc">
+      Visualize the angular separation between planets over time.
+      Detect aspects, synodic cycles and transits over a natal chart with VSOP87/Meeus precision.
+    </div>
+    <div class="ob-steps">
+      <div class="ob-step"><span class="ob-step-num">1</span> Set your date range and click <em>Calculate Cycles</em></div>
+      <div class="ob-step"><span class="ob-step-num">2</span> Add planet pairs (Transit–Transit) or use <em>Add 10 Outer</em> for all outer planets</div>
+      <div class="ob-step"><span class="ob-step-num">3</span> For natal transits, calculate the natal chart first then add Transit–Natal pairs</div>
+      <div class="ob-step"><span class="ob-step-num">4</span> Hover over the chart to inspect angles and the harmonic index</div>
+    </div>
+  </div>
+  <button class="ob-dismiss" id="ob-dismiss">Don't show again ✕</button>
+</div>
+
 <!-- RANGE BAR -->
 <div class="bar">
   <label for="sd">FROM</label><input type="date" id="sd" value="2026-01-01">
