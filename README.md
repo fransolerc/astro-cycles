@@ -1,71 +1,75 @@
-# 🌌 Astro-Cycles Calculator
+# 🌌 Astro-Cycles
+
+🔭 **[Live Demo](https://fransolerc.github.io/astro-cycles)** · Astronomical cycle calculator and visualizer · VSOP87/Meeus precision
+
+![Astro-Cycles — Jupiter-Saturn cycle 2026-2030 with sign timeline and harmonic index](assets/demo.png)
 
 ---
+
 [**Español**](#-español) | [**English**](#-english)
----
-
-## 🇪🇸 Español
-
-### (Calculadora de ciclos y aspectos astronómicos)
-
-### 🎯 Descripción
-Astro-Cycles es una aplicación web ligera y de alto rendimiento diseñada para visualizar tránsitos planetarios, ciclos sinódicos e índices armónicos. Construida bajo la filosofía **"No-Framework"**, utiliza tecnologías nativas para maximizar la velocidad y precisión en el renderizado de datos astronómicos complejos directamente en el navegador.
-
----
-
-### ✨ Características Principales
-*   **🛰️ Tránsitos Planetarios (T-T):** Visualización de la separación angular entre pares de planetas.
-*   **🌙 Tránsitos Natales (T-N):** Interacción entre planetas actuales y una carta natal personalizada.
-*   **⚖️ Índice Armónico:** Puntuación de "tensión" o "armonía" basada en aspectos configurables.
-*   **📈 Gráfico Dinámico (Canvas):** Renderizado de alto rendimiento con inspección interactiva de datos al pasar el ratón o tocar la pantalla.
-*   **📱 Optimización Móvil:** Interfaz adaptativa y controles táctiles optimizados para tablets y smartphones.
-*   **⚙️ Altamente Configurable:** Control total sobre orbes, suavizado (smoothing), modos de visualización (180°/360°) y aspectos activos.
-
----
-
-### 🛠️ Arquitectura y Stack
-El proyecto sigue un diseño modular para mantener la escalabilidad sin la carga de frameworks pesados:
-*   **Vanilla JavaScript (ES6+):** Lógica desacoplada en módulos (Cálculo, Estado, UI, Renderizado).
-*   **HTML5 Canvas:** Motor de dibujo de alto rendimiento para series temporales densas.
-*   **CSS3 Moderno:** Diseño basado en variables y flexbox con soporte nativo para modo oscuro.
-
----
-
-### ⚙️ Ejecución
-Al ser una aplicación estática, no requiere servidor:
-1.  Clona el repositorio.
-2.  Abre `index.html` en tu navegador.
 
 ---
 
 ## 🇺🇸 English
 
-### (An Astronomical Cycle and Aspect Calculator)
+Astro-Cycles visualizes the angular separation between planets over time. Detect conjunctions, oppositions and other aspects, track synodic cycles, and overlay a harmonic index — all in the browser, no server required.
 
-### 🎯 Description
-Astro-Cycles is a lightweight, high-performance web application for visualizing planetary transits, synodic cycles, and harmonic indices. Built with a **"No-Framework"** philosophy, it leverages native web technologies to maximize speed and precision when rendering complex astronomical data directly in the browser.
+### ✨ Features
 
----
+- **Transit–Transit (T-T):** Angular separation between any two planets across a date range.
+- **Transit–Natal (T-N):** Transits against a custom birth chart.
+- **Harmonic Index:** Configurable scoring of global tension/harmony based on active aspects and orbs.
+- **Sign Timeline:** Color-coded band showing which zodiac sign each planet occupies, with element grouping (Fire/Earth/Air/Water).
+- **Interactive Tooltip:** Hover or touch to inspect angles, sign positions, and the harmonic index at any point in time.
+- **Highly Configurable:** Adjust orbs, smoothing, display mode (0–180° / 0–360°), and aspect weights.
+- **Mobile Optimized:** Responsive layout with touch support.
 
-### ✨ Core Features
-*   **🛰️ Planetary Transits (T-T):** Visualizes the angular separation between pairs of planets over time.
-*   **🌙 Natal Transits (T-N):** Displays transits against a predefined birth chart.
-*   **⚖️ Harmonic Index:** A scoring system representing global "tension" or "harmony" based on active aspects.
-*   **📈 Dynamic Graph (Canvas):** High-performance rendering engine with interactive data inspection via mouse or touch.
-*   **📱 Mobile Optimized:** Responsive layout and touch-friendly controls designed for tablets and smartphones.
-*   **⚙️ Highly Customizable:** Dynamic adjustment of orbs, smoothing factors, display modes (180°/360°), and active aspects.
+### 🛠️ Stack
 
----
+Vanilla JavaScript (ES6+) · HTML5 Canvas · CSS3 — no frameworks, no build step, no dependencies.
 
-### 🛠️ Architecture & Stack
-The project follows a modular design to ensure scalability without the overhead of heavy frameworks:
-*   **Vanilla JavaScript (ES6+):** Logic decoupled into specialized modules (Astronomy, State, UI, Rendering).
-*   **HTML5 Canvas:** High-efficiency drawing engine for dense astronomical time series.
-*   **Modern CSS3:** Variable-based styling and flexbox layouts with native dark theme support.
-
----
+Astronomy engine based on VSOP87 orbital elements and Meeus algorithms.
 
 ### ⚙️ Setup
-As a static application, no server is required:
-1.  Clone the repository.
-2.  Open `index.html` in your browser.
+
+Static app — no server needed:
+
+```
+git clone https://github.com/fransolerc/astro-cycles
+open index.html
+```
+
+Or use the **[Live Demo](https://fransolerc.github.io/astro-cycles)** directly.
+
+---
+
+## 🇪🇸 Español
+
+Astro-Cycles visualiza la separación angular entre planetas a lo largo del tiempo. Detecta conjunciones, oposiciones y otros aspectos, sigue ciclos sinódicos y superpone un índice armónico — todo en el navegador, sin servidor.
+
+### ✨ Características
+
+- **Tránsitos Planetarios (T-T):** Separación angular entre cualquier par de planetas en un rango de fechas.
+- **Tránsitos Natales (T-N):** Tránsitos sobre una carta natal personalizada.
+- **Índice Armónico:** Puntuación configurable de tensión/armonía global basada en aspectos activos y orbes.
+- **Timeline de Signos:** Banda con código de color mostrando en qué signo se encuentra cada planeta, agrupado por elemento (Fuego/Tierra/Aire/Agua).
+- **Tooltip Interactivo:** Hover o toque para inspeccionar ángulos, posiciones en signo e índice armónico en cualquier punto temporal.
+- **Altamente Configurable:** Ajuste de orbes, suavizado, modo de visualización (0–180° / 0–360°) y pesos de aspecto.
+- **Optimizado para Móvil:** Interfaz adaptativa con soporte táctil.
+
+### 🛠️ Stack
+
+Vanilla JavaScript (ES6+) · HTML5 Canvas · CSS3 — sin frameworks, sin build step, sin dependencias.
+
+Motor astronómico basado en elementos orbitales VSOP87 y algoritmos de Meeus.
+
+### ⚙️ Ejecución
+
+Aplicación estática — no requiere servidor:
+
+```
+git clone https://github.com/fransolerc/astro-cycles
+open index.html
+```
+
+O usa la **[Demo en Vivo](https://fransolerc.github.io/astro-cycles)** directamente.
