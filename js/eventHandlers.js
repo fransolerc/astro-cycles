@@ -3,6 +3,10 @@
  * Handles user actions and interactions with validation and business logic.
  */
 
+// Contador incremental: Date.now() + i + j colisionaba entre pares distintos.
+let pairIdSeq = 1;
+const newPairId = () => pairIdSeq++;
+
 globalThis.EventHandlers = {
   /**
    * Validates date range inputs.
@@ -46,15 +50,18 @@ globalThis.EventHandlers = {
 
   /**
    * Toggles pair visibility.
+   * Updates both `pairs` (chips) and `pairData` (chart/index/tooltip) in a single
+   * setState, since the render reads visibility from pairData.
    * @param {string|number} pairId - Pair ID to toggle.
    * @param {StateManager} stateManager - State manager instance.
    */
   togglePair(pairId, stateManager) {
-    const currentState = stateManager.getState();
-    const pairs = currentState.pairs.map(p =>
-      p.id === pairId ? { ...p, vis: !p.vis } : p
-    );
-    stateManager.setState({ pairs });
+    const { pairs, pairData } = stateManager.getState();
+    const flip = p => (p.id === pairId ? { ...p, vis: !p.vis } : p);
+    stateManager.setState({
+      pairs: pairs.map(flip),
+      pairData: pairData.map(flip)
+    });
   },
 
   /**
@@ -107,7 +114,7 @@ globalThis.EventHandlers = {
 
       const tag = document.getElementById('natal-tag');
       const parts = Config.PLANETS.map(p =>
-        `<span class="natal-sym">${Config.SYM[p]}</span><span class="natal-pos">${Utils.signOf(natalLons[p], Astro, Config.SIGNS)}</span>`
+          `<span class="natal-sym">${Config.SYM[p]}</span><span class="natal-pos">${Utils.signOf(natalLons[p], Astro, Config.SIGNS)}</span>`
       );
       tag.innerHTML = `<span class="natal-date">${date} ${time}</span>${parts.join(' ')}`;
 
@@ -145,7 +152,7 @@ globalThis.EventHandlers = {
       p1: planet1,
       p2: planet2,
       col,
-      id: Date.now(),
+      id: newPairId(),
       vis: true,
       type: 'tt'
     };
@@ -178,7 +185,7 @@ globalThis.EventHandlers = {
             p1: a,
             p2: b,
             col,
-            id: Date.now() + i + j,
+            id: newPairId(),
             vis: true,
             type: 'tt'
           });
@@ -219,7 +226,7 @@ globalThis.EventHandlers = {
       p1: transitPlanet,
       p2: natalPlanet,
       col,
-      id: Date.now(),
+      id: newPairId(),
       vis: true,
       type: 'tn',
       key,
@@ -274,4 +281,3 @@ globalThis.EventHandlers = {
     }, 10);
   }
 };
-
