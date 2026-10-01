@@ -25,8 +25,8 @@ globalThis.ChartRenderer = {
   drawGrid: (rc, mode) => {
     const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     const gDegs = mode === 360
-      ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
-      : [0, 30, 60, 90, 120, 150, 180];
+        ? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
+        : [0, 30, 60, 90, 120, 150, 180];
 
     gDegs.forEach(deg => {
       const y = yd(deg);
@@ -65,9 +65,9 @@ globalThis.ChartRenderer = {
       const d = new Date((jd - 2440587.5) * 86400000);
       const yr = d.getUTCFullYear();
       const mo = d.getUTCMonth() + 1;
-      let lbl = ticks.length > 1 && (ticks[1] - ticks[0]) < 300 
-        ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
-        : String(yr);
+      let lbl = ticks.length > 1 && (ticks[1] - ticks[0]) < 300
+          ? `${String(mo).padStart(2, '0')}/${yr.toString().slice(2)}`
+          : String(yr);
 
       ctx.fillStyle = '#8090a8';
       ctx.font = '12px Inter, system-ui, sans-serif';
@@ -86,23 +86,27 @@ globalThis.ChartRenderer = {
     const { ctx, MARGIN_LEFT, MARGIN_RIGHT, W, yd } = rc;
     actAsps.forEach(a => {
       if (a.angle > maxY) return;
-      const y = yd(a.angle);
-      ctx.strokeStyle = a.col;
-      ctx.lineWidth = 0.6;
-      ctx.setLineDash([2, 6]);
-      ctx.globalAlpha = 0.35;
-      ctx.beginPath();
-      ctx.moveTo(MARGIN_LEFT, y);
-      ctx.lineTo(W - MARGIN_RIGHT, y);
-      ctx.stroke();
+      // En modo 360 el aspecto existe en θ y en 360-θ; en 180 la curva está plegada.
+      const targets = maxY === 360 ? globalThis.AstroUtils.aspectTargets(a.angle) : [a.angle];
+      targets.forEach(t => {
+        const y = yd(t);
+        ctx.strokeStyle = a.col;
+        ctx.lineWidth = 0.6;
+        ctx.setLineDash([2, 6]);
+        ctx.globalAlpha = 0.35;
+        ctx.beginPath();
+        ctx.moveTo(MARGIN_LEFT, y);
+        ctx.lineTo(W - MARGIN_RIGHT, y);
+        ctx.stroke();
 
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = a.col;
-      ctx.font = '12px Inter, system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(a.sym + ' ' + a.angle + '°', MARGIN_LEFT + 2, y - 2);
-      ctx.globalAlpha = 1;
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = a.col;
+        ctx.font = '12px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(a.sym + ' ' + t + '°', MARGIN_LEFT + 2, y - 2);
+        ctx.globalAlpha = 1;
+      });
     });
   },
 
@@ -120,28 +124,29 @@ globalThis.ChartRenderer = {
     const jt = mode === 360 ? 270 : 90;
     const visible = pairData.filter(p => p.vis && p.pts?.length);
 
-    const detectCrossings = (pd, actAsps, pts, maxY, jt, rc) => {
+    const detectCrossings = (pd, actAsps, pts, mode, rc) => {
       const { xj, yd, MARGIN_LEFT, MARGIN_RIGHT, W } = rc;
       const hits = [];
-      for (let i = 1; i < pts.length; i++) {
-        const prev = pts[i - 1], cur = pts[i];
-        if (Math.abs(cur.a - prev.a) >= jt) continue;
-        actAsps.forEach(a => {
-          if (a.angle > maxY) return;
-          const dp = prev.a - a.angle, dc = cur.a - a.angle;
-          if (dp * dc > 0) return;
-          const frac = Math.abs(dp) / (Math.abs(dp) + Math.abs(dc));
-          const cjd = prev.jd + frac * (cur.jd - prev.jd);
-          const cx = xj(cjd);
+      actAsps.forEach(a => {
+        globalThis.AstroCalculator.findCrossings(pts, a.angle).forEach(({ jd, target }) => {
+          const cx = xj(jd);
           if (cx < MARGIN_LEFT || cx > W - MARGIN_RIGHT) return;
           if (hits.some(h => Math.abs(h.x - cx) < 20 && h.ang === a.angle && h.pid === pd.id)) return;
-          hits.push({ x: cx, y: yd(a.angle), col: pd.col, date: globalThis.AstroUtils.fmtD(cjd), ang: a.angle, pid: pd.id, isNatal: pd.type === 'tn' });
+          hits.push({
+            x: cx,
+            y: yd(mode === 360 ? target : a.angle), // en 180 la curva está plegada: ambos lados caen en θ
+            col: pd.col,
+            date: globalThis.AstroUtils.fmtD(jd),
+            ang: a.angle,
+            pid: pd.id,
+            isNatal: pd.type === 'tn'
+          });
         });
-      }
-      return hits;
+      });
+      return hits.sort((p, q) => p.x - q.x); // placeLabels asigna filas en orden de llegada
     };
 
-    const cands = visible.flatMap(pd => detectCrossings(pd, actAsps, pd.pts, maxY, jt, rc));
+    const cands = visible.flatMap(pd => detectCrossings(pd, actAsps, pd.pts, mode, rc));
     const placed = globalThis.AstroUtils.placeLabels(cands);
 
     const drawCycleLines = (visible, ctx, xj, yd, jt, MARGIN_TOP, ih, W, MARGIN_RIGHT, config) => {
@@ -193,15 +198,15 @@ globalThis.ChartRenderer = {
         ctx.stroke();
         ctx.globalAlpha = 1;
 
-        const ly = c.y - 8 - (c.row * 13);
-        if (ly > MARGIN_TOP) {
-          ctx.fillStyle = c.col;
-          ctx.font = '12px Inter, system-ui, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.globalAlpha = 0.7;
-          ctx.fillText(c.date, c.x, ly);
-          ctx.globalAlpha = 1;
-        }
+        // Encima del marcador si cabe; si no (borde superior), debajo.
+        const above = c.y - 8 - (c.row * 13);
+        const ly = above > MARGIN_TOP ? above : c.y + 14 + (c.row * 13);
+        ctx.fillStyle = c.col;
+        ctx.font = '12px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = 0.7;
+        ctx.fillText(c.date, c.x, ly);
+        ctx.globalAlpha = 1;
       });
     };
 
@@ -296,8 +301,8 @@ globalThis.ChartRenderer = {
           ctx.textAlign = 'center';
 
           const label = w >= 28
-            ? config.SIGNS[seg.sign] + ' ' + config.SIGN_NAMES[seg.sign]
-            : config.SIGNS[seg.sign];
+              ? config.SIGNS[seg.sign] + ' ' + config.SIGN_NAMES[seg.sign]
+              : config.SIGNS[seg.sign];
 
           // Clip text to the band
           ctx.save();
@@ -384,11 +389,11 @@ globalThis.ChartRenderer = {
     ctx.globalAlpha = 0.9;
     for (let i = 1; i < scores.length; i++) {
       const vm = (scores[i - 1].v + scores[i].v) / 2;
-      
+
       let strokeStyle = '#fcd34d';
       if (vm > 0.08) strokeStyle = '#34d399';
       else if (vm < -0.08) strokeStyle = '#f87171';
-      
+
       ctx.strokeStyle = strokeStyle;
       ctx.beginPath();
       ctx.moveTo(xj(scores[i - 1].jd), svY(scores[i - 1].v));
