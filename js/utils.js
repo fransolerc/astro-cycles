@@ -74,5 +74,13 @@ globalThis.AstroUtils = {
       placed.push({ ...c, row });
     });
     return placed;
-  }
+  },
+
+  /**
+   * Valores de la diferencia con signo (0–360) que equivalen a un aspecto.
+   * Un aspecto θ se da en θ y en su espejo 360-θ; 0° y 180° son su propio espejo.
+   * @param {number} angle - Ángulo del aspecto (0–180).
+   * @returns {number[]} Uno o dos objetivos en 0–360.
+   */
+  aspectTargets: (angle) => (angle === 0 || angle === 180 ? [angle] : [angle, 360 - angle]),
 };

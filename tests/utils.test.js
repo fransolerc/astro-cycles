@@ -39,4 +39,16 @@ describe('AstroUtils', () => {
       expect(AstroUtils.smoothArr([], 5)).toEqual([]);
     });
   });
+
+  describe('aspectTargets', () => {
+    it('devuelve un solo objetivo para 0° y 180°', () => {
+      expect(AstroUtils.aspectTargets(0)).toEqual([0]);
+      expect(AstroUtils.aspectTargets(180)).toEqual([180]);
+    });
+
+    it('devuelve el aspecto y su espejo para el resto', () => {
+      expect(AstroUtils.aspectTargets(60)).toEqual([60, 300]);
+      expect(AstroUtils.aspectTargets(90)).toEqual([90, 270]);
+    });
+  });
 });
