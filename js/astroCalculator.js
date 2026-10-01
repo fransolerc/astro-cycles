@@ -33,7 +33,11 @@ globalThis.AstroCalculator = {
     const step = Math.min(globalThis.AstroUtils.stepFor(p1), globalThis.AstroUtils.stepFor(p2)), pts = [];
     for (let jd = sJD; jd <= eJD; jd += step) {
       const T = (jd - 2451545) / 36525, l1 = Astro.getLon(p1, T), l2 = Astro.getLon(p2, T);
-      pts.push({ jd, a: mode === 360 ? Astro.n360(l2 - l1) : Astro.sep180(l1, l2) });
+      pts.push({
+        jd,
+        a: mode === 360 ? Astro.n360(l2 - l1) : Astro.sep180(l1, l2),
+        d: Astro.n360(l2 - l1)
+      });
     }
     return pts;
   },
@@ -52,9 +56,35 @@ globalThis.AstroCalculator = {
     const step = globalThis.AstroUtils.stepFor(transitPlanet), pts = [];
     for (let jd = sJD; jd <= eJD; jd += step) {
       const T = (jd - 2451545) / 36525, lt = Astro.getLon(transitPlanet, T);
-      pts.push({ jd, a: mode === 360 ? Astro.n360(lt - natalLon) : Astro.sep180(lt, natalLon) });
+      pts.push({
+        jd,
+        a: mode === 360 ? Astro.n360(lt - natalLon) : Astro.sep180(lt, natalLon),
+        d: Astro.n360(lt - natalLon)
+      });
     }
     return pts;
+  },
+
+  /**
+   * Cruces de una serie con un aspecto. Opera sobre la diferencia con signo `d`,
+   * así que detecta también 0° y 180°, que en la curva plegada solo se "tocan".
+   * @param {Array<{jd: number, d: number}>} pts - Serie con diferencia con signo (0–360).
+   * @param {number} angle - Ángulo del aspecto (0–180).
+   * @returns {Array<{jd: number, target: number}>} Instante (interpolado) y lado del cruce.
+   */
+  findCrossings: (pts, angle) => {
+    const wrap = x => ((x + 540) % 360) - 180; // a (-180, 180]
+    const out = [];
+    globalThis.AstroUtils.aspectTargets(angle).forEach(target => {
+      for (let i = 1; i < pts.length; i++) {
+        const ep = wrap(pts[i - 1].d - target), ec = wrap(pts[i].d - target);
+        if (Math.abs(ep - ec) > 90) continue;                        // salto por el antípoda, no es cruce
+        if (!((ep < 0 && ec >= 0) || (ep > 0 && ec <= 0))) continue; // sin cambio de signo
+        const frac = Math.abs(ep) / (Math.abs(ep) + Math.abs(ec));
+        out.push({ jd: pts[i - 1].jd + frac * (pts[i].jd - pts[i - 1].jd), target });
+      }
+    });
+    return out;
   },
 
   /**
