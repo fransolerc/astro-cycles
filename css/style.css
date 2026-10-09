@@ -464,3 +464,59 @@ canvas { display: block; max-width: 100%; }
   border-color: var(--md-sys-color-outline);
   color: var(--md-sys-color-on-surface-var);
 }
+
+/* ── Positions bar ── */
+.pos-bar {
+  align-items: center;
+  background: var(--md-sys-color-surface-container-lowest);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-height: 34px; /* evita el salto de layout cuando se pinta por primera vez */
+  padding: 5px 14px;
+}
+.pos-title {
+  color: var(--md-sys-color-outline);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pos-date {
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--r-md);
+  color: var(--md-sys-color-on-surface);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+}
+.pos-date.pinned {
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-primary);
+}
+.pos-hint {
+  color: var(--md-sys-color-outline);
+  font-size: 10px;
+}
+.pos-item {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 3px;
+  white-space: nowrap;
+}
+.pos-sym  { color: var(--md-sys-color-primary); font-size: 13px; }
+.pos-sign { color: var(--md-sys-color-on-surface-var); font-size: 12px; }
+.pos-deg  {
+  color: var(--md-sys-color-on-surface);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.pos-rx   { color: var(--md-sys-color-tertiary); font-size: 11px; font-weight: 500; }
+
+@media (max-width: 768px) {
+  .pos-bar  { gap: 6px 12px; padding: 8px 12px; }
+  .pos-sym  { font-size: 15px; }
+  .pos-sign, .pos-deg, .pos-rx, .pos-date { font-size: 12px; }
+}

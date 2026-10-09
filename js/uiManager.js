@@ -83,6 +83,35 @@ globalThis.UIManager = {
   },
 
   /**
+   * Renders the planet positions bar for a given date.
+   * Pure view: positions are computed by the caller.
+   * @param {Array<{planet: string, sign: number, deg: number, retro: boolean}>} items - One per planet.
+   * @param {string} dateLabel - Already formatted date (DD/MM/YYYY).
+   * @param {boolean} pinned - Whether the date is pinned by the user.
+   * @param {Object} config - Configuration (SYM, SIGNS, TEXTS).
+   */
+  renderPositions: (items, dateLabel, pinned, config) => {
+    const bar = document.getElementById('pos-bar');
+    if (!bar) return;
+
+    const cells = items.map(it =>
+        '<span class="pos-item">' +
+        `<span class="pos-sym">${config.SYM[it.planet]}</span>` +
+        `<span class="pos-sign">${config.SIGNS[it.sign]}</span>` +
+        `<span class="pos-deg">${it.deg}°</span>` +
+        (it.retro ? '<span class="pos-rx" title="Retrograde">℞</span>' : '') +
+        '</span>'
+    ).join('');
+
+    const hint = pinned ? config.TEXTS.POS_HINT_PINNED : config.TEXTS.POS_HINT;
+    bar.innerHTML =
+        `<span class="pos-title">${config.TEXTS.POSITIONS}</span>` +
+        `<span class="pos-date ${pinned ? 'pinned' : ''}">${dateLabel}</span>` +
+        `<span class="pos-hint">${hint}</span>` +
+        cells;
+  },
+
+  /**
    * Opens an input field to edit an aspect score.
    * @private
    */

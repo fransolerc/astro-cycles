@@ -74,7 +74,10 @@ globalThis.AstroCfg = {
     ARIA_REMOVE_PAIR: 'Remove pair',
     ARIA_TOGGLE_PAIR: 'Toggle visibility of ',
     ARIA_TOGGLE_ASPECT: 'Toggle ',
-    TITLE_EDIT_SCORE: 'Click to edit score'
+    TITLE_EDIT_SCORE: 'Click to edit score',
+    POSITIONS: 'POSITIONS',
+    POS_HINT: 'click chart to pin',
+    POS_HINT_PINNED: 'click chart to unpin'
   },
   MARGIN_LEFT: 48,
   MARGIN_RIGHT: 8,
