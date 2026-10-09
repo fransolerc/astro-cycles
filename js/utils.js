@@ -7,12 +7,14 @@ globalThis.AstroUtils = {
   /**
    * Format a Julian Day number into a short date string (DD/MM/YY).
    * @param {number} jd - Julian Day number.
+   * @param {boolean} [fullYear=false] - Use a four-digit year (DD/MM/YYYY).
    * @returns {string} Formatted date.
    */
-  fmtD: (jd) => {
+  fmtD: (jd, fullYear = false) => {
     const d = new Date((jd - 2440587.5) * 86400000);
     const p = (n) => String(n).padStart(2, '0');
-    return `${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}/${d.getUTCFullYear().toString().slice(2)}`;
+    const y = fullYear ? String(d.getUTCFullYear()) : d.getUTCFullYear().toString().slice(2);
+    return `${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}/${y}`;
   },
 
   /**
@@ -25,6 +27,27 @@ globalThis.AstroUtils = {
   signOf: (lon, Astro, signs) => {
     const s = Math.floor(Astro.n360(lon) / 30);
     return signs[s] + (Math.floor(Astro.n360(lon) % 30)) + '°';
+  },
+
+  /**
+   * Sign, degree and retrograde flag of each planet at a given instant.
+   * Independent of pairs and aspects.
+   * @param {number} jd - Julian Day.
+   * @param {Object} Astro - Astronomical calculation engine.
+   * @param {string[]} planets - Planet names, in display order.
+   * @returns {Array<{planet: string, sign: number, deg: number, retro: boolean}>}
+   */
+  positionsAt: (jd, Astro, planets) => {
+    const T = (jd - 2451545) / 36525;
+    return planets.map(planet => {
+      const lon = Astro.n360(Astro.getLon(planet, T));
+      return {
+        planet,
+        sign: Math.floor(lon / 30),
+        deg: Math.floor(lon % 30),
+        retro: Astro.isRetro(planet, T)
+      };
+    });
   },
 
   /**

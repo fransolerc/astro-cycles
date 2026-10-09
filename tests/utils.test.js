@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import '../js/constants.js';
+import '../js/astronomy.js';
 import '../js/utils.js';
 
 describe('AstroUtils', () => {
@@ -8,6 +10,32 @@ describe('AstroUtils', () => {
     it('should correctly format a Julian Day to DD/MM/YY', () => {
       // 2460000.5 is 2023-02-25
       expect(AstroUtils.fmtD(2460000.5)).toBe('25/02/23');
+    });
+  });
+
+  describe('fmtD con año largo', () => {
+    it('usa cuatro dígitos si se pide', () => {
+      expect(AstroUtils.fmtD(2460000.5, true)).toBe('25/02/2023');
+    });
+  });
+
+  describe('positionsAt', () => {
+    it('calcula signo, grado y retrogradación con un motor simulado', () => {
+      const mock = {
+        n360: v => ((v % 360) + 360) % 360,
+        getLon: vi.fn(p => ({ Sun: 15.5, Mercury: 359.9 })[p]),
+        isRetro: vi.fn(p => p === 'Mercury')
+      };
+      expect(AstroUtils.positionsAt(2451545, mock, ['Sun', 'Mercury'])).toEqual([
+        { planet: 'Sun', sign: 0, deg: 15, retro: false },
+        { planet: 'Mercury', sign: 11, deg: 29, retro: true }
+      ]);
+    });
+
+    it('con el motor real, el Sol en J2000 está en Capricornio 10°', () => {
+      // λ☉ ≈ 280.38° el 2000-01-01 12:00 → signo 9 (Capricornio), grado 10
+      const [sun] = AstroUtils.positionsAt(2451545, globalThis.Astro, ['Sun']);
+      expect(sun).toEqual({ planet: 'Sun', sign: 9, deg: 10, retro: false });
     });
   });
 
