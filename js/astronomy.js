@@ -74,6 +74,21 @@ const Astro = {
     return this.n360(this.r2d(Math.atan2(yp - ye, xp - xe)));
   },
 
+  /**
+   * Whether a planet is retrograde at time T (Julian centuries from J2000).
+   * Compares the longitude half a day before and after. The Sun and the Moon
+   * never go retrograde in geocentric longitude.
+   * @param {string} pl - Planet name.
+   * @param {number} T - Julian centuries since J2000.
+   * @returns {boolean}
+   */
+  isRetro: function(pl, T) {
+    if (pl === 'Sun' || pl === 'Moon') return false;
+    const eps = 0.5 / 36525;
+    const d = this.n360(this.getLon(pl, T + eps) - this.getLon(pl, T - eps));
+    return d > 180; // adelante ≈ 0–1°; atrás ≈ 359–360°
+  },
+
   sep180: function(a, b) {
     const d = Math.abs(this.n360(b - a));
     return d > 180 ? 360 - d : d;
