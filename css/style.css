@@ -162,13 +162,10 @@ input[type=number] { width: 64px; }
   font-size: 11px;
   align-items: center;
 }
-.natal-date-label  { color: var(--md-sys-color-outline); font-size: 10px; margin-right: 4px; flex-shrink: 0; }
-.natal-row         { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
-.natal-planet-sym  { color: var(--md-sys-color-primary); font-size: 13px; }
-.natal-planet-name { color: var(--md-sys-color-outline); font-size: 10px; }
-.natal-deg         { color: var(--md-sys-color-on-surface); font-size: 11px; font-variant-numeric: tabular-nums; min-width: 22px; text-align: right; }
-.natal-sign-sym    { color: var(--md-sys-color-primary); font-size: 11px; }
-.natal-sign-name   { color: var(--md-sys-color-on-surface-var); font-size: 11px; }
+.natal-date { color: var(--md-sys-color-outline); flex-shrink: 0; font-size: 10px; margin-right: 4px; }
+.natal-item { align-items: baseline; display: inline-flex; gap: 3px; white-space: nowrap; }
+.natal-sym  { color: var(--md-sys-color-primary); font-size: 13px; }
+.natal-pos  { color: var(--md-sys-color-on-surface); font-size: 11px; font-variant-numeric: tabular-nums; }
 
 /* ── Pairs bar ── */
 .pairs-bar {

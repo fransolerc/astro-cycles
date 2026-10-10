@@ -93,6 +93,7 @@ globalThis.EventHandlers = {
 
   /**
    * Calculates and displays natal positions.
+   * The time is read as UT: no timezone is applied.
    * @param {StateManager} stateManager - State manager instance.
    */
   calcNatal(stateManager) {
@@ -114,9 +115,12 @@ globalThis.EventHandlers = {
 
       const tag = document.getElementById('natal-tag');
       const parts = Config.PLANETS.map(p =>
-          `<span class="natal-sym">${Config.SYM[p]}</span><span class="natal-pos">${Utils.signOf(natalLons[p], Astro, Config.SIGNS)}</span>`
+          '<span class="natal-item">' +
+          `<span class="natal-sym">${Config.SYM[p]}</span>` +
+          `<span class="natal-pos">${Utils.signOf(natalLons[p], Astro, Config.SIGNS)}</span>` +
+          '</span>'
       );
-      tag.innerHTML = `<span class="natal-date">${date} ${time}</span>${parts.join(' ')}`;
+      tag.innerHTML = `<span class="natal-date">${date} ${time} UT</span>${parts.join('')}`;
 
       stateManager.setState({ natalLons });
     } catch (e) {
