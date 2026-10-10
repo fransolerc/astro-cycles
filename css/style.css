@@ -32,6 +32,7 @@
   --r-md: 8px;
   --r-lg: 12px;
   --r-xl: 16px;
+  color-scheme: dark; /* date/time pickers, number spinners and scrollbars follow the dark theme */
 }
 
 /* ── Reset ── */
@@ -43,7 +44,6 @@ body {
   color: var(--md-sys-color-on-surface);
   font-family: var(--font);
   font-size: 13px;
-  user-select: none;
 }
 
 /* ── Inputs & Selects ── */
@@ -214,7 +214,16 @@ input[type=number] { width: 64px; }
 
 /* ── Canvas ── */
 .canvas-wrap { position: relative; width: 100%; overflow-x: auto; }
-canvas { display: block; max-width: 100%; }
+canvas {
+  -webkit-tap-highlight-color: transparent; /* un tap fija la fecha: sin parpadeo gris en móvil */
+  -webkit-user-select: none;
+  cursor: crosshair;
+  display: block;
+  max-width: 100%;
+  user-select: none;
+}
+
+button { -webkit-user-select: none; user-select: none; }
 
 .vline {
   position: absolute;
@@ -238,7 +247,7 @@ canvas { display: block; max-width: 100%; }
   line-height: 1.9;
   padding: 8px 12px;
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   white-space: nowrap;
   z-index: 10;
 }
