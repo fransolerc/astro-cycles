@@ -66,7 +66,7 @@ const Astro = {
       const F = this.d2r(this.n360(93.2721 + 13.22935 * d));
       return this.n360(L + 6.289 * Math.sin(M) + 1.274 * Math.sin(2 * D - M) + 0.658 * Math.sin(2 * D) +
         0.214 * Math.sin(2 * M) - 0.186 * Math.sin(Ms) - 0.114 * Math.sin(2 * F) +
-        0.059 * Math.sin(2 * D - 2 * M) + 0.053 * Math.sin(2 * D + Math.sin(M)) + 0.046 * Math.sin(2 * D - Ms) +
+        0.059 * Math.sin(2 * D - 2 * M) + 0.053 * Math.sin(2 * D + M) + 0.046 * Math.sin(2 * D - Ms) +
         0.041 * Math.sin(M - Ms));
     }
     const { x: xp, y: yp } = this.helioXY(pl, T);
