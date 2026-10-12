@@ -279,7 +279,8 @@ globalThis.EventHandlers = {
       });
 
       const tnCount = currentState.pairs.filter(p => p.type === 'tn').length;
-      document.getElementById('stat').textContent = `${currentState.pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · VSOP87/MEEUS`;
+      document.getElementById('stat').textContent =
+          `${currentState.pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}`;
 
       stateManager.setState({ pairData });
     }, 10);

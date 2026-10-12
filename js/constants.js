@@ -68,7 +68,7 @@ globalThis.AstroCfg = {
     INDEX: 'INDEX',
     NATAL_TAG_EMPTY: 'No natal data calculated',
     NATAL_TAG_READY: 'Natal data ready',
-    STATUS_READY: 'READY · VSOP87/MEEUS · TRANSITS + NATAL',
+    STATUS_READY: 'READY · JPL ELEMENTS · TRANSITS + NATAL',
     STATUS_CALC: 'CALCULATING...',
     TOOLTIP_INDEX: 'Index:',
     ARIA_REMOVE_PAIR: 'Remove pair',
@@ -77,7 +77,8 @@ globalThis.AstroCfg = {
     TITLE_EDIT_SCORE: 'Click to edit score',
     POSITIONS: 'POSITIONS',
     POS_HINT: 'click chart to pin',
-    POS_HINT_PINNED: 'click chart to unpin'
+    POS_HINT_PINNED: 'click chart to unpin',
+    ENGINE_TAG: 'JPL ELEMENTS',
   },
   MARGIN_LEFT: 48,
   MARGIN_RIGHT: 8,

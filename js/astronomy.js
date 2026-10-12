@@ -1,4 +1,9 @@
-// ─── ASTRONOMICAL ENGINE (VSOP87/MEEUS) ───
+// ─── ASTRONOMICAL ENGINE ───
+// Planets: JPL Keplerian elements (Standish, Table 1, valid 1800–2050), referred
+//   to the equinox of date via Astro.precession(). https://ssd.jpl.nasa.gov/planets/approx_pos.html
+// Sun: Meeus, low-accuracy formula (ch. 25).
+// Moon: short truncated series; low precision.
+// Pluto: separate element set, not verified.
 const Astro = {
   J2000: 2451545,
   d2r: d => d * Math.PI / 180,
