@@ -7,6 +7,63 @@
 let pairIdSeq = 1;
 const newPairId = () => pairIdSeq++;
 
+// Temporizador de runCalc: una llamada nueva cancela la pendiente.
+let calcTimer = null;
+
+/**
+ * Current date range and display mode from the DOM.
+ * @returns {{sJD: number, eJD: number, mode: number}|null} null if the inputs
+ *   are missing or invalid.
+ */
+const currentRange = () => {
+  const sd = document.getElementById('sd');
+  const ed = document.getElementById('ed');
+  const ms = document.getElementById('mode-sel');
+  if (!sd || !ed || !ms) return null;
+  if (!globalThis.EventHandlers.validateInputs().valid) return null;
+  const Astro = globalThis.Astro;
+  return {
+    sJD: Astro.toJD(sd.value),
+    eJD: Astro.toJD(ed.value),
+    mode: Number.parseInt(ms.value, 10) || 180
+  };
+};
+
+/**
+ * Angle series of one pair over a range.
+ * @param {Object} p - Pair (type 'tt' or 'tn').
+ * @returns {Array<{jd: number, a: number, d: number}>}
+ */
+const computePts = (p, sJD, eJD, mode) => {
+  const Calculator = globalThis.AstroCalculator;
+  const Astro = globalThis.Astro;
+  return p.type === 'tt'
+      ? Calculator.calcSeriesTT(p.p1, p.p2, sJD, eJD, mode, Astro)
+      : Calculator.calcSeriesTN(p.p1, p.natalLon, sJD, eJD, mode, Astro);
+};
+
+/**
+ * Adds pairs to `pairs` and, with their series already computed, to
+ * `pairData`, in a single setState. If the range is not valid, the series are
+ * left empty until the next runCalc.
+ * @param {Array<Object>} newPairs - Pairs without `pts`.
+ * @param {Object} extra - Other state updates (colour indexes).
+ * @param {StateManager} stateManager - State manager instance.
+ */
+const appendPairs = (newPairs, extra, stateManager) => {
+  const { pairs, pairData } = stateManager.getState();
+  const range = currentRange();
+  const withPts = newPairs.map(p => ({
+    ...p,
+    pts: range ? computePts(p, range.sJD, range.eJD, range.mode) : []
+  }));
+  stateManager.setState({
+    pairs: [...pairs, ...newPairs],
+    pairData: [...pairData, ...withPts],
+    ...extra
+  });
+};
+
 globalThis.EventHandlers = {
   /**
    * Validates date range inputs.
@@ -94,6 +151,7 @@ globalThis.EventHandlers = {
   /**
    * Calculates and displays natal positions.
    * The time is read as UT: no timezone is applied.
+   * Transit-natal pairs already on the chart are refreshed with the new natal.
    * @param {StateManager} stateManager - State manager instance.
    */
   calcNatal(stateManager) {
@@ -122,7 +180,14 @@ globalThis.EventHandlers = {
       );
       tag.innerHTML = `<span class="natal-date">${date} ${time} UT</span>${parts.join('')}`;
 
-      stateManager.setState({ natalLons });
+      const pairs = stateManager.getState().pairs ?? [];
+      const hasTN = pairs.some(p => p.type === 'tn');
+      const updates = { natalLons };
+      if (hasTN) {
+        updates.pairs = pairs.map(p => (p.type === 'tn' ? { ...p, natalLon: natalLons[p.p2] } : p));
+      }
+      stateManager.setState(updates);
+      if (hasTN) this.runCalc(stateManager, { silent: true });
     } catch (e) {
       console.error('Error calculating natal:', e);
       alert('Error calculating natal positions. Please check the data.');
@@ -161,10 +226,7 @@ globalThis.EventHandlers = {
       type: 'tt'
     };
 
-    stateManager.setState({
-      pairs: [...currentState.pairs, newPair],
-      colorIdx: currentState.colorIdx + 1
-    });
+    appendPairs([newPair], { colorIdx: currentState.colorIdx + 1 }, stateManager);
   },
 
   /**
@@ -198,10 +260,8 @@ globalThis.EventHandlers = {
       }
     }
 
-    stateManager.setState({
-      pairs: [...currentState.pairs, ...newPairs],
-      colorIdx: cIdx
-    });
+    if (!newPairs.length) return;
+    appendPairs(newPairs, { colorIdx: cIdx }, stateManager);
   },
 
   /**
@@ -237,50 +297,37 @@ globalThis.EventHandlers = {
       natalLon: currentState.natalLons[natalPlanet]
     };
 
-    stateManager.setState({
-      pairs: [...currentState.pairs, newPair],
-      nColorIdx: currentState.nColorIdx + 1
-    });
+    appendPairs([newPair], { nColorIdx: currentState.nColorIdx + 1 }, stateManager);
   },
 
   /**
-   * Runs calculations for all pairs.
+   * Runs calculations for all pairs over the current range and mode.
+   * Repeated calls collapse into one. The pairs are read when the timer
+   * fires, so pairs added in between are included.
    * @param {StateManager} stateManager - State manager instance.
+   * @param {{silent?: boolean}} [options] - With `silent`, an invalid range is
+   *   reported in the status bar instead of an alert (for automatic recalcs).
    */
-  runCalc(stateManager) {
+  runCalc(stateManager, { silent = false } = {}) {
+    const stat = document.getElementById('stat');
     const validation = this.validateInputs();
     if (!validation.valid) {
-      alert(validation.error);
+      if (silent) stat.textContent = validation.error;
+      else alert(validation.error);
       return;
     }
 
-    const Calculator = globalThis.AstroCalculator;
-    const Astro = globalThis.Astro;
-    const currentState = stateManager.getState();
+    const { sJD, eJD, mode } = currentRange();
+    stat.textContent = 'CALCULATING...';
 
-    const sJD = Astro.toJD(document.getElementById('sd').value);
-    const eJD = Astro.toJD(document.getElementById('ed').value);
-    const mode = Number.parseInt(document.getElementById('mode-sel').value, 10) || 180;
+    clearTimeout(calcTimer);
+    calcTimer = setTimeout(() => {
+      const { pairs } = stateManager.getState();
+      const pairData = pairs.map(p => ({ ...p, pts: computePts(p, sJD, eJD, mode) }));
 
-    document.getElementById('stat').textContent = 'CALCULATING...';
-
-    setTimeout(() => {
-      const pairData = currentState.pairs.map(p => {
-        if (p.type === 'tt') {
-          return {
-            ...p,
-            pts: Calculator.calcSeriesTT(p.p1, p.p2, sJD, eJD, mode, Astro)
-          };
-        }
-        return {
-          ...p,
-          pts: Calculator.calcSeriesTN(p.p1, p.natalLon, sJD, eJD, mode, Astro)
-        };
-      });
-
-      const tnCount = currentState.pairs.filter(p => p.type === 'tn').length;
-      document.getElementById('stat').textContent =
-          `${currentState.pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}`;
+      const tnCount = pairs.filter(p => p.type === 'tn').length;
+      stat.textContent =
+          `${pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}`;
 
       stateManager.setState({ pairData });
     }, 10);

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '../js/constants.js';
 import '../js/astronomy.js';
 import '../js/utils.js';
@@ -33,5 +33,44 @@ describe('EventHandlers.calcNatal', () => {
         const first = document.querySelector('.natal-item');
         expect(first.querySelector('.natal-sym').textContent).toBe('☉');
         expect(first.querySelector('.natal-pos').textContent).toBe('♑10°');
+    });
+
+    describe('pares T-N ya en el gráfico', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            document.body.insertAdjacentHTML('beforeend',
+                '<input id="sd" value="2026-01-01"><input id="ed" value="2027-01-01">' +
+                '<select id="mode-sel"><option value="180" selected>180</option></select>' +
+                '<div id="stat"></div>');
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        const tnState = () => new StateManager({
+            natalLons: null,
+            cachedRaw: null,
+            pairs: [{ id: 1, type: 'tn', p1: 'Saturn', p2: 'Sun', vis: true, col: '#fff', natalLon: 0 }],
+            pairData: []
+        });
+
+        it('actualiza natalLon al recalcular la natal', () => {
+            const state = tnState();
+            EventHandlers.calcNatal(state);
+            const s = state.getState();
+            expect(s.pairs[0].natalLon).toBe(s.natalLons.Sun);
+            expect(s.pairs[0].natalLon).not.toBe(0);
+        });
+
+        it('recalcula las series para que usen la natal nueva', () => {
+            const state = tnState();
+            EventHandlers.calcNatal(state);
+            vi.advanceTimersByTime(10);
+            const s = state.getState();
+            expect(s.pairData).toHaveLength(1);
+            expect(s.pairData[0].natalLon).toBe(s.natalLons.Sun);
+            expect(s.pairData[0].pts.length).toBeGreaterThan(0);
+        });
     });
 });
