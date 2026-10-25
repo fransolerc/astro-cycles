@@ -86,7 +86,10 @@ describe('Astro Engine', () => {
     it.each([
       ['Neptune', '2025-03-30'], // entra en Aries
       ['Uranus',  '2025-07-07'], // entra en Géminis
-      ['Saturn',  '2025-05-25']  // entra en Aries
+      ['Saturn',  '2025-05-25'], // entra en Aries
+      ['Jupiter', '2025-06-09'], // entra en Cáncer
+      ['Pluto',   '2023-03-23'], // entra en Acuario (primer ingreso)
+      ['Pluto',   '2024-11-19']  // entra en Acuario (definitivo)
     ])('%s cambia de signo cerca de %s', (planet, date) => {
       const jd = firstSignChange(planet, date);
       expect(jd).not.toBeNull();
