@@ -13,8 +13,11 @@ globalThis.StateManager = class StateManager extends EventTarget {
   /**
    * Updates state and emits 'stateChange' event.
    * @param {Partial<ApplicationState>} updates - State updates to apply.
+   * @param {{silent?: boolean}} [options] - With `silent`, no event is emitted.
+   *   Meant for derived values (caches) written while rendering: emitting
+   *   from inside a render would re-enter it.
    */
-  setState(updates) {
+  setState(updates, { silent = false } = {}) {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...updates };
 
@@ -23,6 +26,8 @@ globalThis.StateManager = class StateManager extends EventTarget {
     if (cacheInvalidationKeys.some(key => key in updates)) {
       this.state.cachedRaw = null;
     }
+
+    if (silent) return;
 
     // Emit change event with before/after state
     this.dispatchEvent(new CustomEvent('stateChange', {
@@ -39,4 +44,3 @@ globalThis.StateManager = class StateManager extends EventTarget {
   }
 
 };
-

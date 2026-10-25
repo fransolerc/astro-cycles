@@ -117,8 +117,7 @@ globalThis.CanvasManager = {
     const {
       rc, sJD, eJD, totalDays, mode, maxY,
       tlTop, timelinePlanets,
-      sTop, sMid, sBot,
-      currentCW, currentCH
+      sTop, sMid, sBot
     } = canvasData;
 
     this.drawChartElements(
@@ -128,11 +127,6 @@ globalThis.CanvasManager = {
       stateManager
     );
     this.drawTodayLine(rc, sJD, eJD, sBot);
-
-    // Store dimensions without triggering a state change
-    const st = stateManager.getState();
-    st.CW = currentCW;
-    st.CH = currentCH;
   },
 
   /**
@@ -206,7 +200,9 @@ globalThis.CanvasManager = {
         const calculatedRaw = Calculator.calcRawScores(
           sJD, eJD, currentState.pairData, currentState.aspEn, orb, Astro, Config.ASPECTS
         );
-        stateManager.setState({ cachedRaw: calculatedRaw });
+        // Silent: this is a memoised value, and an event from inside a render
+        // would re-enter the render and draw the whole chart twice.
+        stateManager.setState({ cachedRaw: calculatedRaw }, { silent: true });
       }
       const smoothing = Number.parseInt(document.getElementById('sm-sl').value, 10) || 5;
       const scores    = Utils.smoothArr(stateManager.getState().cachedRaw, smoothing);

@@ -40,4 +40,20 @@ describe('StateManager', () => {
     expect(eventDetail.newState.count).toBe(10);
     expect(eventDetail.updates).toEqual({ count: 10 });
   });
+
+  it('with silent it updates the state but emits no event', () => {
+    let events = 0;
+    stateManager.addEventListener('stateChange', () => { events++; });
+
+    stateManager.setState({ cachedRaw: [1, 2, 3] }, { silent: true });
+
+    expect(events).toBe(0);
+    expect(stateManager.getState().cachedRaw).toEqual([1, 2, 3]);
+  });
+
+  it('with silent it still invalidates the cache on relevant keys', () => {
+    stateManager.setState({ cachedRaw: [1, 2, 3] }, { silent: true });
+    stateManager.setState({ pairs: ['x'] }, { silent: true });
+    expect(stateManager.getState().cachedRaw).toBeNull();
+  });
 });

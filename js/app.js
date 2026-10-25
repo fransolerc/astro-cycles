@@ -19,9 +19,7 @@
     colorIdx: 0,
     nColorIdx: 0,
     natalLons: null,
-    cachedRaw: null,
-    CW: 0,
-    CH: 0
+    cachedRaw: null
   });
 
   // --- RENDER COORDINATION ---
