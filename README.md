@@ -41,7 +41,7 @@ Astronomy engine: JPL Keplerian elements for the planets, referred to the equino
 | Moon | short truncated series | low precision |
 | Pluto | separate element set | ≈ 0.02° measured at 8 sign ingresses in 2008–2024; unchecked elsewhere |
 
-- The JPL elements are fitted for **1800–2050**. Outside that range, accuracy degrades.
+- The JPL elements are fitted for **1800–2050**. Outside that range, accuracy degrades, and the status bar says so.
 - Positions are geometric: no nutation, aberration or light-time correction (together ≲ 0.02°).
 - The natal time is read as **UT**; no timezone conversion is applied.
 - Source of the planetary elements: [Approximate Positions of the Planets](https://ssd.jpl.nasa.gov/planets/approx_pos.html), JPL Solar System Dynamics.
@@ -90,7 +90,7 @@ Motor astronómico: elementos keplerianos de JPL para los planetas, referidos al
 | Luna | serie truncada corta | baja precisión |
 | Plutón | conjunto de elementos propio | ≈ 0,02° medido en 8 ingresos de signo de 2008–2024; sin comprobar fuera de ese rango |
 
-- Los elementos de JPL están ajustados para **1800–2050**. Fuera de ese rango, la precisión se degrada.
+- Los elementos de JPL están ajustados para **1800–2050**. Fuera de ese rango, la precisión se degrada, y la barra de estado lo avisa.
 - Las posiciones son geométricas: sin corrección de nutación, aberración ni tiempo de luz (en conjunto ≲ 0,02°).
 - La hora natal se interpreta como **UT**; no se aplica ninguna conversión de zona horaria.
 - Fuente de los elementos planetarios: [Approximate Positions of the Planets](https://ssd.jpl.nasa.gov/planets/approx_pos.html), JPL Solar System Dynamics.

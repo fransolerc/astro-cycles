@@ -178,6 +178,39 @@ describe('añadir pares calcula su serie al momento', () => {
     });
 });
 
+describe('EventHandlers.validateInputs: validez del motor', () => {
+    it('sin aviso dentro de 1800–2050', () => {
+        rangeDom('1900-01-01', '2000-01-01');
+        expect(EventHandlers.validateInputs()).toEqual({ valid: true });
+    });
+
+    it('sin aviso en los extremos del rango válido', () => {
+        rangeDom('1800-01-01', '1900-01-01');
+        expect(EventHandlers.validateInputs()).toEqual({ valid: true });
+        rangeDom('1951-01-01', '2050-12-31');
+        expect(EventHandlers.validateInputs()).toEqual({ valid: true });
+    });
+
+    it('avisa si el inicio es anterior a 1800', () => {
+        rangeDom('1790-01-01', '1850-01-01');
+        const r = EventHandlers.validateInputs();
+        expect(r.valid).toBe(true);
+        expect(r.warning).toContain('1800–2050');
+    });
+
+    it('avisa si el fin es posterior a 2050', () => {
+        rangeDom('2000-01-01', '2060-01-01');
+        const r = EventHandlers.validateInputs();
+        expect(r.valid).toBe(true);
+        expect(r.warning).toContain('1800–2050');
+    });
+
+    it('un rango invertido sigue siendo inválido aunque esté fuera de validez', () => {
+        rangeDom('2060-01-01', '2050-01-01');
+        expect(EventHandlers.validateInputs().valid).toBe(false);
+    });
+});
+
 describe('EventHandlers.runCalc', () => {
     const pair = { id: 1, p1: 'Jupiter', p2: 'Saturn', type: 'tt', vis: true, col: '#fff' };
     const makeState = () => new StateManager({ pairs: [pair], pairData: [], cachedRaw: null });
@@ -238,5 +271,22 @@ describe('EventHandlers.runCalc', () => {
         vi.stubGlobal('alert', alertMock);
         EventHandlers.runCalc(makeState());
         expect(alertMock).toHaveBeenCalledWith('End date must be after start date');
+    });
+
+    it('con fechas fuera de validez calcula igual y lo indica en la barra', () => {
+        rangeDom('2040-01-01', '2060-01-01');
+        const sm = makeState();
+        EventHandlers.runCalc(sm);
+        vi.advanceTimersByTime(10);
+        expect(sm.getState().pairData).toHaveLength(1);
+        expect(sm.getState().pairData[0].pts.length).toBeGreaterThan(0);
+        expect(stat()).toContain('REDUCED ACCURACY');
+    });
+
+    it('dentro del rango válido la barra no lleva aviso', () => {
+        const sm = makeState();
+        EventHandlers.runCalc(sm);
+        vi.advanceTimersByTime(10);
+        expect(stat()).not.toContain('REDUCED ACCURACY');
     });
 });

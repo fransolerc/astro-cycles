@@ -67,7 +67,8 @@ const appendPairs = (newPairs, extra, stateManager) => {
 globalThis.EventHandlers = {
   /**
    * Validates date range inputs.
-   * @returns {{valid: boolean, error?: string}}
+   * @returns {{valid: boolean, error?: string, warning?: string}} `warning` is
+   *   set when the range is valid but outside the validity of the engine.
    */
   validateInputs() {
     const sDate = document.getElementById('sd').value?.trim();
@@ -87,6 +88,12 @@ globalThis.EventHandlers = {
     const yearsDiff = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
     if (yearsDiff > 100) {
       return { valid: false, error: 'Maximum 100 years allowed' };
+    }
+
+    // The JPL elements are only fitted for a limited range: valid, but warn.
+    const { ENGINE_VALID_FROM: from, ENGINE_VALID_TO: to } = globalThis.AstroCfg;
+    if (startDate.getUTCFullYear() < from || endDate.getUTCFullYear() > to) {
+      return { valid: true, warning: `OUTSIDE ${from}–${to}: REDUCED ACCURACY` };
     }
 
     return { valid: true };
@@ -317,6 +324,7 @@ globalThis.EventHandlers = {
       return;
     }
 
+    const { warning } = validation;
     const { sJD, eJD, mode } = currentRange();
     stat.textContent = 'CALCULATING...';
 
@@ -327,7 +335,8 @@ globalThis.EventHandlers = {
 
       const tnCount = pairs.filter(p => p.type === 'tn').length;
       stat.textContent =
-          `${pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}`;
+          `${pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}` +
+          (warning ? ` · ⚠ ${warning}` : '');
 
       stateManager.setState({ pairData });
     }, 10);
