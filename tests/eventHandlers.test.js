@@ -256,21 +256,17 @@ describe('EventHandlers.runCalc', () => {
         expect(sm.getState().pairData).toHaveLength(2);
     });
 
-    it('con fechas inválidas y silent, muestra el error en la barra y no calcula', () => {
-        rangeDom('2027-01-01', '2026-01-01');
-        const sm = makeState();
-        EventHandlers.runCalc(sm, { silent: true });
-        expect(stat()).toContain('End date must be after start date');
-        vi.advanceTimersByTime(10);
-        expect(sm.getState().pairData).toEqual([]);
-    });
-
-    it('con fechas inválidas y sin silent, avisa con alert', () => {
+    it('con fechas inválidas muestra el error en la barra, sin alert, y no calcula', () => {
         rangeDom('2027-01-01', '2026-01-01');
         const alertMock = vi.fn();
         vi.stubGlobal('alert', alertMock);
-        EventHandlers.runCalc(makeState());
-        expect(alertMock).toHaveBeenCalledWith('End date must be after start date');
+        const sm = makeState();
+        EventHandlers.runCalc(sm);
+        expect(stat()).toBe('End date must be after start date');
+        expect(document.getElementById('stat').classList.contains('stat-error')).toBe(true);
+        expect(alertMock).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(10);
+        expect(sm.getState().pairData).toEqual([]);
     });
 
     it('con fechas fuera de validez calcula igual y lo indica en la barra', () => {
@@ -288,5 +284,72 @@ describe('EventHandlers.runCalc', () => {
         EventHandlers.runCalc(sm);
         vi.advanceTimersByTime(10);
         expect(stat()).not.toContain('REDUCED ACCURACY');
+    });
+});
+
+describe('mensajes de error en la barra de estado', () => {
+    const statEl = () => document.getElementById('stat');
+    const isError = () => statEl().classList.contains('stat-error');
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        rangeDom();
+        statEl().textContent = 'READY';
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+    });
+
+    it('dos planetas iguales: error en la barra, sin alert, y no se añade el par', () => {
+        const alertMock = vi.fn();
+        vi.stubGlobal('alert', alertMock);
+        const sm = emptyState();
+        EventHandlers.addPairTT('Sun', 'Sun', sm);
+        expect(statEl().textContent).toBe('Select two different planets');
+        expect(isError()).toBe(true);
+        expect(sm.getState().pairs).toEqual([]);
+        expect(alertMock).not.toHaveBeenCalled();
+    });
+
+    it('el error se retira a los 5 s y vuelve el estado anterior', () => {
+        EventHandlers.addPairTT('Sun', 'Sun', emptyState());
+        vi.advanceTimersByTime(4999);
+        expect(isError()).toBe(true);
+        vi.advanceTimersByTime(1);
+        expect(statEl().textContent).toBe('READY');
+        expect(isError()).toBe(false);
+    });
+
+    it('dos errores seguidos recuerdan el estado original, no el primer error', () => {
+        const sm = emptyState();
+        EventHandlers.addPairTT('Sun', 'Sun', sm);
+        EventHandlers.addPairTT('Moon', 'Moon', sm);
+        vi.advanceTimersByTime(5000);
+        expect(statEl().textContent).toBe('READY');
+    });
+
+    it('un estado posterior no lo pisa el temporizador del error', () => {
+        EventHandlers.addPairTT('Sun', 'Sun', emptyState());
+        const pair = { id: 1, p1: 'Jupiter', p2: 'Saturn', type: 'tt', vis: true, col: '#fff' };
+        const sm = new StateManager({ pairs: [pair], pairData: [], cachedRaw: null });
+        EventHandlers.runCalc(sm);
+        vi.advanceTimersByTime(10);
+        vi.advanceTimersByTime(5000);
+        expect(statEl().textContent).toContain('1 PAIR(S)');
+        expect(isError()).toBe(false);
+    });
+
+    it('addPairTN sin natal calculada: error en la barra', () => {
+        const sm = emptyState();
+        EventHandlers.addPairTN(sm);
+        expect(statEl().textContent).toContain('First calculate the natal');
+        expect(isError()).toBe(true);
+    });
+
+    it('sin barra de estado no falla', () => {
+        document.body.innerHTML = '';
+        expect(() => EventHandlers.addPairTT('Sun', 'Sun', emptyState())).not.toThrow();
     });
 });

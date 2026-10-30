@@ -228,6 +228,12 @@
     Handlers.runCalc(stateManager);
   });
 
+  ['sd', 'ed'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      Handlers.runCalc(stateManager);
+    });
+  });
+
   document.querySelector('.btn-calcular').addEventListener('click', () => {
     Handlers.runCalc(stateManager);
   });

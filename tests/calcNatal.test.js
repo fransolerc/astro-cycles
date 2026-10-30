@@ -35,6 +35,28 @@ describe('EventHandlers.calcNatal', () => {
         expect(first.querySelector('.natal-pos').textContent).toBe('♑10°');
     });
 
+    describe('validación', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            document.body.insertAdjacentHTML('beforeend', '<div id="stat"></div>');
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+            vi.unstubAllGlobals();
+        });
+
+        it('sin fecha, muestra el error en la barra, sin alert, y no calcula', () => {
+            const alertMock = vi.fn();
+            vi.stubGlobal('alert', alertMock);
+            document.getElementById('nb-date').value = '';
+            EventHandlers.calcNatal(sm);
+            expect(document.getElementById('stat').textContent).toBe('Enter natal date and time');
+            expect(alertMock).not.toHaveBeenCalled();
+            expect(sm.getState().natalLons).toBeNull();
+        });
+    });
+
     describe('pares T-N ya en el gráfico', () => {
         beforeEach(() => {
             vi.useFakeTimers();

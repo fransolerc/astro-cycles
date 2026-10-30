@@ -36,10 +36,10 @@
       Detect aspects, synodic cycles and transits over a natal chart, using JPL Keplerian elements (1800–2050).
     </div>
     <div class="ob-steps">
-      <div class="ob-step"><span class="ob-step-num">1</span> Set your date range and click <em>Calculate Cycles</em></div>
+      <div class="ob-step"><span class="ob-step-num">1</span> Pick a date range; the chart updates by itself (<em>Calculate Cycles</em> forces a recalculation)</div>
       <div class="ob-step"><span class="ob-step-num">2</span> Add planet pairs (Transit–Transit) or use <em>Add 10 Outer</em> for all outer planets</div>
-      <div class="ob-step"><span class="ob-step-num">3</span> For natal transits, calculate the natal chart first then add Transit–Natal pairs</div>
-      <div class="ob-step"><span class="ob-step-num">4</span> Hover over the chart to inspect angles and the harmonic index</div>
+      <div class="ob-step"><span class="ob-step-num">3</span> For natal transits, enter the birth date and time in UT, calculate the natal chart, then add Transit–Natal pairs</div>
+      <div class="ob-step"><span class="ob-step-num">4</span> Hover over the chart to inspect angles, planet positions and the harmonic index; click to pin a date</div>
     </div>
   </div>
   <button class="ob-dismiss" id="ob-dismiss">Don't show again ✕</button>
@@ -99,7 +99,7 @@
   <span class="legend-neg-label">NEG</span><span class="legend-neg-value">Squa+Opp</span>
   <span class="legend-neu-label">NEU</span><span class="legend-neu-value">Conjunction</span>
 </div>
-<div class="stat" id="stat">READY · JPL ELEMENTS · TRANSITS + NATAL</div>
+<div class="stat" id="stat" role="status" aria-live="polite">READY · JPL ELEMENTS · TRANSITS + NATAL</div>
 
 <script src="js/astronomy.js"></script>
 <script src="js/constants.js"></script>

@@ -345,7 +345,11 @@ button { -webkit-user-select: none; user-select: none; }
   font-size: 10px;
   letter-spacing: .05em;
   padding: 3px 14px;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
 }
+.stat.stat-error { color: var(--md-neg); }
 
 /* ── Mobile Optimizations ── */
 @media (max-width: 768px) {

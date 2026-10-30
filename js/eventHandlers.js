@@ -10,6 +10,43 @@ const newPairId = () => pairIdSeq++;
 // Temporizador de runCalc: una llamada nueva cancela la pendiente.
 let calcTimer = null;
 
+// Mensajes en la barra de estado (sustituyen a los diálogos del navegador).
+const ERROR_MS = 5000;
+let errorTimer = null;
+let statusBeforeError = null;
+
+/**
+ * Writes a normal status message, replacing any error currently shown.
+ * @param {string} text
+ */
+const setStatus = text => {
+  const stat = document.getElementById('stat');
+  if (!stat) return;
+  clearTimeout(errorTimer);
+  statusBeforeError = null;
+  stat.classList.remove('stat-error');
+  stat.textContent = text;
+};
+
+/**
+ * Shows an error in the status bar and restores the previous status after a
+ * few seconds, unless something else has written a status in the meantime.
+ * @param {string} message
+ */
+const showError = message => {
+  const stat = document.getElementById('stat');
+  if (!stat) return;
+  if (!stat.classList.contains('stat-error')) statusBeforeError = stat.textContent;
+  stat.classList.add('stat-error');
+  stat.textContent = message;
+  clearTimeout(errorTimer);
+  errorTimer = setTimeout(() => {
+    stat.classList.remove('stat-error');
+    stat.textContent = statusBeforeError ?? '';
+    statusBeforeError = null;
+  }, ERROR_MS);
+};
+
 /**
  * Current date range and display mode from the DOM.
  * @returns {{sJD: number, eJD: number, mode: number}|null} null if the inputs
@@ -166,7 +203,7 @@ globalThis.EventHandlers = {
     const time = document.getElementById('nb-time').value;
 
     if (!date || !time) {
-      alert('Enter natal date and time');
+      showError('Enter natal date and time');
       return;
     }
 
@@ -194,10 +231,10 @@ globalThis.EventHandlers = {
         updates.pairs = pairs.map(p => (p.type === 'tn' ? { ...p, natalLon: natalLons[p.p2] } : p));
       }
       stateManager.setState(updates);
-      if (hasTN) this.runCalc(stateManager, { silent: true });
+      if (hasTN) this.runCalc(stateManager);
     } catch (e) {
       console.error('Error calculating natal:', e);
-      alert('Error calculating natal positions. Please check the data.');
+      showError('Error calculating natal positions. Please check the data.');
     }
   },
 
@@ -215,7 +252,7 @@ globalThis.EventHandlers = {
     const planet2 = p2 || document.getElementById('np2').value;
 
     if (planet1 === planet2) {
-      alert('Select two different planets');
+      showError('Select two different planets');
       return;
     }
 
@@ -280,7 +317,7 @@ globalThis.EventHandlers = {
     const currentState = stateManager.getState();
 
     if (!currentState.natalLons) {
-      alert('First calculate the natal (CALCULATE NATAL button)');
+      showError('First calculate the natal (CALCULATE NATAL button)');
       return;
     }
 
@@ -310,23 +347,20 @@ globalThis.EventHandlers = {
   /**
    * Runs calculations for all pairs over the current range and mode.
    * Repeated calls collapse into one. The pairs are read when the timer
-   * fires, so pairs added in between are included.
+   * fires, so pairs added in between are included. An invalid range is
+   * reported in the status bar.
    * @param {StateManager} stateManager - State manager instance.
-   * @param {{silent?: boolean}} [options] - With `silent`, an invalid range is
-   *   reported in the status bar instead of an alert (for automatic recalcs).
    */
-  runCalc(stateManager, { silent = false } = {}) {
-    const stat = document.getElementById('stat');
+  runCalc(stateManager) {
     const validation = this.validateInputs();
     if (!validation.valid) {
-      if (silent) stat.textContent = validation.error;
-      else alert(validation.error);
+      showError(validation.error);
       return;
     }
 
     const { warning } = validation;
     const { sJD, eJD, mode } = currentRange();
-    stat.textContent = 'CALCULATING...';
+    setStatus('CALCULATING...');
 
     clearTimeout(calcTimer);
     calcTimer = setTimeout(() => {
@@ -334,9 +368,10 @@ globalThis.EventHandlers = {
       const pairData = pairs.map(p => ({ ...p, pts: computePts(p, sJD, eJD, mode) }));
 
       const tnCount = pairs.filter(p => p.type === 'tn').length;
-      stat.textContent =
+      setStatus(
           `${pairs.length} PAIR(S) (${tnCount} T→N) · ${mode}° · ${globalThis.AstroCfg.TEXTS.ENGINE_TAG}` +
-          (warning ? ` · ⚠ ${warning}` : '');
+          (warning ? ` · ⚠ ${warning}` : '')
+      );
 
       stateManager.setState({ pairData });
     }, 10);
